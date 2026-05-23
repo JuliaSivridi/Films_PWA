@@ -12,7 +12,7 @@ interface Props {
 
 export default function MovieCard({ movie, onEdit }: Props) {
   const { remove } = useMovies()
-  const [deleting, setDeleting] = useState(false)
+  const [deleting, setDeleting]     = useState(false)
   const [confirmDel, setConfirmDel] = useState(false)
 
   const poster = getPosterUrl(movie.poster_path)
@@ -56,26 +56,20 @@ export default function MovieCard({ movie, onEdit }: Props) {
           >
             {STATUS_LABELS[movie.status]}
           </span>
-          {movie.rating != null && (
-            <span className={styles.rating}>★ {movie.rating}</span>
-          )}
         </div>
         <h3 className={styles.titleRu}>{movie.title_ru || movie.title_en}</h3>
         {movie.title_en && movie.title_ru && (
           <p className={styles.titleEn}>{movie.title_en}</p>
         )}
         {movie.year > 0 && (
-          <p className={styles.meta}>
-            {movie.year}
-            {movie.genres.length > 0 && ` · ${movie.genres.slice(0, 2).join(', ')}`}
-          </p>
+          <p className={styles.meta}>{movie.year}</p>
         )}
         {(movie.kinopoisk_url || movie.imdb_url || movie.tmdb_url || movie.wiki_url) && (
           <div className={styles.links}>
             {movie.kinopoisk_url && <a href={movie.kinopoisk_url} target="_blank" rel="noreferrer">KP</a>}
-            {movie.imdb_url && <a href={movie.imdb_url} target="_blank" rel="noreferrer">IMDb</a>}
-            {movie.tmdb_url && <a href={movie.tmdb_url} target="_blank" rel="noreferrer">TMDB</a>}
-            {movie.wiki_url && <a href={movie.wiki_url} target="_blank" rel="noreferrer">Wiki</a>}
+            {movie.imdb_url      && <a href={movie.imdb_url}      target="_blank" rel="noreferrer">IMDb</a>}
+            {movie.tmdb_url      && <a href={movie.tmdb_url}      target="_blank" rel="noreferrer">TMDB</a>}
+            {movie.wiki_url      && <a href={movie.wiki_url}      target="_blank" rel="noreferrer">Wiki</a>}
           </div>
         )}
       </div>

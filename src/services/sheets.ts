@@ -1,6 +1,11 @@
 /**
  * Google Sheets API v4 — CRUD for movies.
  * Gets token via refreshTokenIfNeeded(), sheet ID via getSheetId().
+ *
+ * Columns A–K (11 total):
+ *   id | title_ru | title_en | year | status |
+ *   tmdb_id | poster_path |
+ *   kinopoisk_url | imdb_url | tmdb_url | wiki_url
  */
 
 import type { Movie, MovieStatus } from '../types/movie'
@@ -8,19 +13,18 @@ import { refreshTokenIfNeeded } from './auth'
 import { getSheetId } from './drive'
 
 const SHEETS_BASE = 'https://sheets.googleapis.com/v4/spreadsheets'
-const SHEET_NAME = 'Movies'
+const SHEET_NAME  = 'Movies'
 const HEADERS = [
-  'id', 'title_ru', 'title_en', 'year', 'genres', 'status',
-  'rating', 'review', 'tmdb_id', 'poster_path',
+  'id', 'title_ru', 'title_en', 'year', 'status',
+  'tmdb_id', 'poster_path',
   'kinopoisk_url', 'imdb_url', 'tmdb_url', 'wiki_url',
-  'date_added', 'date_watched',
 ]
 
 async function api(path: string, method: string, body?: object): Promise<Response> {
   const token = await refreshTokenIfNeeded()
-  if (!token) throw new Error('Не авторизован')
+  if (!token) throw new Error('Not authorized')
   const id = getSheetId()
-  if (!id) throw new Error('Таблица не найдена')
+  if (!id) throw new Error('Sheet not found')
 
   const res = await fetch(`${SHEETS_BASE}/${id}${path}`, {
     method,
@@ -39,22 +43,17 @@ async function api(path: string, method: string, body?: object): Promise<Respons
 
 function rowToMovie(row: string[], rowIndex: number): Movie {
   return {
-    id: row[0] || String(rowIndex),
-    title_ru: row[1] || '',
-    title_en: row[2] || '',
-    year: parseInt(row[3]) || 0,
-    genres: row[4] ? (JSON.parse(row[4]) as string[]) : [],
-    status: (row[5] as MovieStatus) || 'want',
-    rating: row[6] ? parseFloat(row[6]) : undefined,
-    review: row[7] || undefined,
-    tmdb_id: row[8] || undefined,
-    poster_path: row[9] || undefined,
-    kinopoisk_url: row[10] || undefined,
-    imdb_url: row[11] || undefined,
-    tmdb_url: row[12] || undefined,
-    wiki_url: row[13] || undefined,
-    date_added: row[14] || new Date().toISOString(),
-    date_watched: row[15] || undefined,
+    id:             row[0]  || String(rowIndex),
+    title_ru:       row[1]  || '',
+    title_en:       row[2]  || '',
+    year:           parseInt(row[3]) || 0,
+    status:         (row[4] as MovieStatus) || 'want',
+    tmdb_id:        row[5]  || undefined,
+    poster_path:    row[6]  || undefined,
+    kinopoisk_url:  row[7]  || undefined,
+    imdb_url:       row[8]  || undefined,
+    tmdb_url:       row[9]  || undefined,
+    wiki_url:       row[10] || undefined,
     _row: rowIndex + 2,
   }
 }
@@ -65,34 +64,28 @@ function movieToRow(m: Movie): string[] {
     m.title_ru,
     m.title_en,
     String(m.year),
-    JSON.stringify(m.genres),
     m.status,
-    m.rating != null ? String(m.rating) : '',
-    m.review || '',
-    m.tmdb_id || '',
-    m.poster_path || '',
-    m.kinopoisk_url || '',
-    m.imdb_url || '',
-    m.tmdb_url || '',
-    m.wiki_url || '',
-    m.date_added,
-    m.date_watched || '',
+    m.tmdb_id        || '',
+    m.poster_path    || '',
+    m.kinopoisk_url  || '',
+    m.imdb_url       || '',
+    m.tmdb_url       || '',
+    m.wiki_url       || '',
   ]
 }
 
 export async function initializeSheet(): Promise<void> {
   const token = await refreshTokenIfNeeded()
-  if (!token) throw new Error('Не авторизован')
+  if (!token) throw new Error('Not authorized')
   const id = getSheetId()
-  if (!id) throw new Error('Таблица не найдена')
+  if (!id) throw new Error('Sheet not found')
 
-  // Check if sheet has headers
-  const headRes = await api(`/values/${SHEET_NAME}!A1:A1`, 'GET')
+  const headRes  = await api(`/values/${SHEET_NAME}!A1:A1`, 'GET')
   const headData = await headRes.json()
 
   if (!headData.values || headData.values[0]?.[0] !== 'id') {
     await api(
-      `/values/${SHEET_NAME}!A1:P1?valueInputOption=RAW`,
+      `/values/${SHEET_NAME}!A1:K1?valueInputOption=RAW`,
       'PUT',
       { values: [HEADERS] },
     )
@@ -100,7 +93,7 @@ export async function initializeSheet(): Promise<void> {
 }
 
 export async function fetchMovies(): Promise<Movie[]> {
-  const res = await api(`/values/${SHEET_NAME}!A:P`, 'GET')
+  const res  = await api(`/values/${SHEET_NAME}!A:K`, 'GET')
   const data = await res.json()
   if (!data.values || data.values.length <= 1) return []
   return (data.values as string[][])
@@ -110,50 +103,50 @@ export async function fetchMovies(): Promise<Movie[]> {
 }
 
 export async function addMovie(movie: Movie): Promise<Movie> {
-  const res = await api(
-    `/values/${SHEET_NAME}!A:P:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+  const res  = await api(
+    `/values/${SHEET_NAME}!A:K:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
     'POST',
     { values: [movieToRow(movie)] },
   )
-  const data = await res.json()
+  const data  = await res.json()
   const range: string = data.updates?.updatedRange || ''
   const match = range.match(/!A(\d+):/)
   return { ...movie, _row: match ? parseInt(match[1]) : undefined }
 }
 
 export async function updateMovie(movie: Movie): Promise<void> {
-  if (!movie._row) throw new Error('Номер строки неизвестен')
+  if (!movie._row) throw new Error('Row number unknown')
   await api(
-    `/values/${SHEET_NAME}!A${movie._row}:P${movie._row}?valueInputOption=RAW`,
+    `/values/${SHEET_NAME}!A${movie._row}:K${movie._row}?valueInputOption=RAW`,
     'PUT',
     { values: [movieToRow(movie)] },
   )
 }
 
 export async function deleteMovie(movie: Movie): Promise<void> {
-  if (!movie._row) throw new Error('Номер строки неизвестен')
+  if (!movie._row) throw new Error('Row number unknown')
   const token = await refreshTokenIfNeeded()
-  if (!token) throw new Error('Не авторизован')
+  if (!token) throw new Error('Not authorized')
   const id = getSheetId()
 
   const metaRes = await fetch(`${SHEETS_BASE}/${id}?fields=sheets.properties`, {
     headers: { Authorization: `Bearer ${token}` },
   })
-  const meta = await metaRes.json()
+  const meta  = await metaRes.json()
   const sheet = meta.sheets?.find(
     (s: { properties: { title: string; sheetId: number } }) =>
       s.properties.title === SHEET_NAME,
   )
-  if (!sheet) throw new Error('Лист Movies не найден')
+  if (!sheet) throw new Error('Movies sheet not found')
 
   await api(':batchUpdate', 'POST', {
     requests: [{
       deleteDimension: {
         range: {
-          sheetId: sheet.properties.sheetId,
-          dimension: 'ROWS',
+          sheetId:    sheet.properties.sheetId,
+          dimension:  'ROWS',
           startIndex: movie._row - 1,
-          endIndex: movie._row,
+          endIndex:   movie._row,
         },
       },
     }],

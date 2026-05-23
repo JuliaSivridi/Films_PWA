@@ -5,18 +5,13 @@ export interface Movie {
   title_ru: string
   title_en: string
   year: number
-  genres: string[]
   status: MovieStatus
-  rating?: number
-  review?: string
   tmdb_id?: string
   poster_path?: string
   kinopoisk_url?: string
   imdb_url?: string
   tmdb_url?: string
   wiki_url?: string
-  date_added: string
-  date_watched?: string
   _row?: number
 }
 

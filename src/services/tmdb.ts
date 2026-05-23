@@ -6,21 +6,6 @@ export function getTmdbKey(): string {
   return localStorage.getItem('tmdb_key') || import.meta.env.VITE_TMDB_API_KEY || ''
 }
 
-let genreCache: Record<number, string> | null = null
-
-export async function getGenres(): Promise<Record<number, string>> {
-  if (genreCache) return genreCache
-  const key = getTmdbKey()
-  if (!key) return {}
-  const res = await fetch(`${BASE}/genre/movie/list?api_key=${key}&language=ru-RU`)
-  if (!res.ok) return {}
-  const data = await res.json()
-  genreCache = Object.fromEntries(
-    (data.genres as { id: number; name: string }[]).map(g => [g.id, g.name]),
-  )
-  return genreCache!
-}
-
 export async function searchMovies(query: string): Promise<TMDBMovie[]> {
   const key = getTmdbKey()
   if (!key || query.length < 2) return []
@@ -30,6 +15,20 @@ export async function searchMovies(query: string): Promise<TMDBMovie[]> {
   if (!res.ok) return []
   const data = await res.json()
   return (data.results as TMDBMovie[])?.slice(0, 8) || []
+}
+
+/** Fetch IMDb ID (and other external IDs) for a TMDB movie. */
+export async function getExternalIds(tmdbId: string): Promise<{ imdb_id: string | null }> {
+  const key = getTmdbKey()
+  if (!key) return { imdb_id: null }
+  try {
+    const res = await fetch(`${BASE}/movie/${tmdbId}/external_ids?api_key=${key}`)
+    if (!res.ok) return { imdb_id: null }
+    const data = await res.json() as { imdb_id?: string | null }
+    return { imdb_id: data.imdb_id || null }
+  } catch {
+    return { imdb_id: null }
+  }
 }
 
 export function getPosterUrl(posterPath: string | null | undefined, size = 'w342'): string {

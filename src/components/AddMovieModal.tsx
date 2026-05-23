@@ -1,72 +1,122 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Movie, MovieStatus, TMDBMovie } from '../types/movie'
 import { STATUS_LABELS } from '../types/movie'
-import { searchMovies, getGenres, getPosterUrl } from '../services/tmdb'
+import { searchMovies, getPosterUrl, getExternalIds } from '../services/tmdb'
+import { lookupFilmByImdbId } from '../services/wikidata'
 import { useMovies } from '../context/MoviesContext'
 import styles from './AddMovieModal.module.css'
 
-const BLANK: Omit<Movie, 'id' | 'date_added'> = {
-  title_ru: '', title_en: '', year: 0, genres: [], status: 'want',
-  rating: undefined, review: undefined,
+/* ── types ────────────────────────────────────────────────────────── */
+
+type Phase    = 'search' | 'form'
+type FormData = Omit<Movie, 'id' | '_row'>
+
+const BLANK: FormData = {
+  title_ru: '', title_en: '', year: 0, status: 'want',
   tmdb_id: undefined, poster_path: undefined,
   kinopoisk_url: undefined, imdb_url: undefined,
   tmdb_url: undefined, wiki_url: undefined,
 }
 
 function uuid() {
-  return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)
+  return crypto.randomUUID
+    ? crypto.randomUUID()
+    : Date.now().toString(36) + Math.random().toString(36).slice(2)
 }
 
 interface Props { movie?: Movie; onClose: () => void }
 
+/* ── component ────────────────────────────────────────────────────── */
+
 export default function AddMovieModal({ movie, onClose }: Props) {
   const isEdit = !!movie
   const { create, edit } = useMovies()
-  const [form, setForm] = useState<Omit<Movie, 'id' | 'date_added'>>(
-    movie ? { ...movie } : { ...BLANK },
-  )
-  const [tmdbQuery, setTmdbQuery] = useState('')
-  const [tmdbResults, setTmdbResults] = useState<TMDBMovie[]>([])
-  const [tmdbLoading, setTmdbLoading] = useState(false)
-  const [genres, setGenres] = useState<Record<number, string>>({})
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const timerRef = useRef<ReturnType<typeof setTimeout>>()
-  const overlayRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => { getGenres().then(setGenres) }, [])
+  const [phase, setPhase]               = useState<Phase>(isEdit ? 'form' : 'search')
+  const [form,  setForm]                = useState<FormData>(movie ? { ...movie } : { ...BLANK })
+  const [linksLoading, setLinksLoading] = useState(false)
+
+  const [query,     setQuery]     = useState('')
+  const [results,   setResults]   = useState<TMDBMovie[]>([])
+  const [searching, setSearching] = useState(false)
+
+  const [saving, setSaving] = useState(false)
+  const [error,  setError]  = useState('')
+
+  const timerRef      = useRef<ReturnType<typeof setTimeout>>()
+  const overlayRef    = useRef<HTMLDivElement>(null)
+  const currentTmdbId = useRef<string | null>(null)   // guard against race conditions
+
+  /* ── debounced TMDB search ──────────────────────────────────────── */
 
   useEffect(() => {
     clearTimeout(timerRef.current)
-    if (tmdbQuery.length < 2) { setTmdbResults([]); return }
+    if (query.length < 2) { setResults([]); return }
     timerRef.current = setTimeout(async () => {
-      setTmdbLoading(true)
-      const res = await searchMovies(tmdbQuery)
-      setTmdbResults(res)
-      setTmdbLoading(false)
-    }, 450)
+      setSearching(true)
+      const res = await searchMovies(query)
+      setResults(res)
+      setSearching(false)
+    }, 400)
     return () => clearTimeout(timerRef.current)
-  }, [tmdbQuery])
+  }, [query])
 
-  function selectTMDB(t: TMDBMovie) {
-    const year = t.release_date ? parseInt(t.release_date.slice(0, 4)) : 0
-    setForm(f => ({
-      ...f,
-      title_ru: t.title,
-      title_en: t.original_title,
-      year,
-      genres: t.genre_ids.map(id => genres[id]).filter(Boolean),
-      tmdb_id: String(t.id),
-      poster_path: t.poster_path || '',
-      tmdb_url: `https://www.themoviedb.org/movie/${t.id}`,
-    }))
-    setTmdbQuery('')
-    setTmdbResults([])
-  }
+  /* ── helpers ────────────────────────────────────────────────────── */
 
-  function set<K extends keyof typeof form>(k: K, v: typeof form[K]) {
+  function set<K extends keyof FormData>(k: K, v: FormData[K]) {
     setForm(f => ({ ...f, [k]: v }))
   }
+
+  function setLink(key: 'kinopoisk_url' | 'imdb_url' | 'tmdb_url' | 'wiki_url', value: string) {
+    setForm(f => ({ ...f, [key]: value || undefined }))
+  }
+
+  /* ── TMDB selection — immediate form + background enrichment ──── */
+
+  async function selectTMDB(t: TMDBMovie) {
+    const year   = t.release_date ? parseInt(t.release_date.slice(0, 4)) : 0
+    const tmdbId = String(t.id)
+    currentTmdbId.current = tmdbId
+
+    // Show form immediately with what TMDB gave us
+    setForm({
+      title_ru:     t.title,
+      title_en:     t.original_title,
+      year,
+      status:       form.status,
+      tmdb_id:      tmdbId,
+      poster_path:  t.poster_path || undefined,
+      imdb_url:     undefined,
+      tmdb_url:     `https://www.themoviedb.org/movie/${tmdbId}`,
+      kinopoisk_url: undefined,
+      wiki_url:     undefined,
+    })
+    setPhase('form')
+    setLinksLoading(true)
+
+    // Enrich: TMDB external IDs → IMDb URL, then Wikidata → KP + Wikipedia
+    try {
+      const ext    = await getExternalIds(tmdbId)
+      if (currentTmdbId.current !== tmdbId) return   // user picked another film
+
+      const imdbId = ext.imdb_id
+      const links  = imdbId
+        ? await lookupFilmByImdbId(imdbId)
+        : { kinopoisk_url: null, wiki_url: null }
+      if (currentTmdbId.current !== tmdbId) return   // user picked another film
+
+      setForm(f => ({
+        ...f,
+        imdb_url:      imdbId ? `https://www.imdb.com/title/${imdbId}/` : undefined,
+        kinopoisk_url: links.kinopoisk_url || undefined,
+        wiki_url:      links.wiki_url      || undefined,
+      }))
+    } finally {
+      if (currentTmdbId.current === tmdbId) setLinksLoading(false)
+    }
+  }
+
+  /* ── save ───────────────────────────────────────────────────────── */
 
   async function handleSave() {
     if (!form.title_ru && !form.title_en) {
@@ -76,11 +126,10 @@ export default function AddMovieModal({ movie, onClose }: Props) {
     setSaving(true)
     setError('')
     try {
-      const now = new Date().toISOString()
       if (isEdit && movie) {
         await edit({ ...movie, ...form })
       } else {
-        await create({ id: uuid(), date_added: now, ...form })
+        await create({ id: uuid(), ...form })
       }
       onClose()
     } catch (e) {
@@ -90,10 +139,23 @@ export default function AddMovieModal({ movie, onClose }: Props) {
     }
   }
 
+  /* ── render ─────────────────────────────────────────────────────── */
+
   return (
-    <div className={styles.overlay} ref={overlayRef} onClick={e => e.target === overlayRef.current && onClose()}>
+    <div
+      className={styles.overlay}
+      ref={overlayRef}
+      onClick={e => e.target === overlayRef.current && onClose()}
+    >
       <div className={styles.modal}>
+
+        {/* Header */}
         <div className={styles.header}>
+          {phase === 'form' && !isEdit && (
+            <button className={styles.backBtn} onClick={() => setPhase('search')} title="Back to search">
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+          )}
           <h2>{isEdit ? 'Edit movie' : 'Add movie'}</h2>
           <button className={styles.close} onClick={onClose}>
             <span className="material-symbols-outlined">close</span>
@@ -101,158 +163,144 @@ export default function AddMovieModal({ movie, onClose }: Props) {
         </div>
 
         <div className={styles.body}>
-          {/* TMDB Search */}
-          <section className={styles.section}>
-            <label className={styles.label}>Search TMDB</label>
-            <div className={styles.tmdbSearch}>
-              <input
-                type="search"
-                placeholder="Movie title…"
-                value={tmdbQuery}
-                onChange={e => setTmdbQuery(e.target.value)}
-              />
-              {tmdbLoading && <div className={styles.miniSpinner} />}
-            </div>
-            {tmdbResults.length > 0 && (
-              <div className={styles.tmdbResults}>
-                {tmdbResults.map(t => (
-                  <button key={t.id} className={styles.tmdbItem} onClick={() => selectTMDB(t)}>
-                    <img
-                      src={getPosterUrl(t.poster_path, 'w92')}
-                      alt=""
-                      className={styles.tmdbThumb}
-                      onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-                    />
-                    <div className={styles.tmdbInfo}>
-                      <span className={styles.tmdbTitle}>{t.title}</span>
-                      <span className={styles.tmdbYear}>
-                        {t.original_title !== t.title && `${t.original_title} · `}
-                        {t.release_date?.slice(0, 4)}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </section>
 
-          {/* Poster preview */}
-          {form.poster_path && (
-            <div className={styles.preview}>
-              <img src={getPosterUrl(form.poster_path, 'w185')} alt="" />
+          {/* ── SEARCH PHASE ─────────────────────────────────────── */}
+          {phase === 'search' && (
+            <div className={styles.searchPhase}>
+              <div className={styles.tmdbSearch}>
+                <input
+                  type="search"
+                  placeholder="Movie title…"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  autoFocus
+                />
+                {searching && <div className={styles.miniSpinner} />}
+              </div>
+
+              {results.length > 0 && (
+                <div className={styles.tmdbResults}>
+                  {results.map(t => (
+                    <button key={t.id} className={styles.tmdbItem} onClick={() => selectTMDB(t)}>
+                      <img
+                        src={getPosterUrl(t.poster_path, 'w92')}
+                        alt=""
+                        className={styles.tmdbThumb}
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                      />
+                      <div className={styles.tmdbInfo}>
+                        <span className={styles.tmdbTitle}>{t.title}</span>
+                        <span className={styles.tmdbYear}>
+                          {t.original_title !== t.title && `${t.original_title} · `}
+                          {t.release_date?.slice(0, 4)}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {!searching && query.length >= 2 && results.length === 0 && (
+                <p className={styles.noResults}>Nothing found on TMDB</p>
+              )}
+
+              <button className={styles.skipLink} onClick={() => setPhase('form')}>
+                Add without search
+              </button>
             </div>
           )}
 
-          {/* Titles */}
-          <div className={styles.row}>
-            <div className={styles.field}>
-              <label className={styles.label}>Title (RU)</label>
-              <input value={form.title_ru} onChange={e => set('title_ru', e.target.value)} placeholder="Russian title" />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Title (EN)</label>
-              <input value={form.title_en} onChange={e => set('title_en', e.target.value)} placeholder="English title" />
-            </div>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.field}>
-              <label className={styles.label}>Year</label>
-              <input
-                type="number" min="1895" max="2099"
-                value={form.year || ''}
-                onChange={e => set('year', parseInt(e.target.value) || 0)}
-                placeholder="2024"
-              />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Genres</label>
-              <input
-                value={form.genres.join(', ')}
-                onChange={e => set('genres', e.target.value.split(',').map(g => g.trim()).filter(Boolean))}
-                placeholder="Action, Drama"
-              />
-            </div>
-          </div>
-
-          {/* Status + Rating */}
-          <div className={styles.row}>
-            <div className={styles.field}>
-              <label className={styles.label}>Status</label>
-              <div className={styles.statusGroup}>
-                {(Object.keys(STATUS_LABELS) as MovieStatus[]).map(s => (
-                  <button
-                    key={s}
-                    className={`${styles.statusBtn} ${form.status === s ? styles.statusActive : ''}`}
-                    data-status={s}
-                    onClick={() => set('status', s)}
-                    type="button"
-                  >
-                    {STATUS_LABELS[s]}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Rating (1–10)</label>
-              <div className={styles.ratingRow}>
-                <input
-                  type="range" min="1" max="10" step="0.5"
-                  value={form.rating ?? ''}
-                  onChange={e => set('rating', parseFloat(e.target.value))}
-                />
-                <span className={styles.ratingVal}>
-                  {form.rating != null ? `★ ${form.rating}` : '—'}
-                </span>
-                {form.rating != null && (
-                  <button className={styles.clearBtn} onClick={() => set('rating', undefined)}>×</button>
+          {/* ── FORM PHASE ───────────────────────────────────────── */}
+          {phase === 'form' && (
+            <>
+              {/* Poster + title fields side by side */}
+              <div className={styles.topSection}>
+                {form.poster_path && (
+                  <img
+                    className={styles.posterSm}
+                    src={getPosterUrl(form.poster_path, 'w92')}
+                    alt=""
+                  />
                 )}
-              </div>
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div className={styles.field}>
-            <label className={styles.label}>Notes</label>
-            <textarea
-              value={form.review || ''}
-              onChange={e => set('review', e.target.value || undefined)}
-              placeholder="Your impressions, thoughts…"
-              rows={3}
-            />
-          </div>
-
-          {/* Links */}
-          <section className={styles.section}>
-            <label className={styles.label}>Links</label>
-            <div className={styles.links}>
-              {[
-                { key: 'kinopoisk_url', label: 'Kinopoisk', placeholder: 'https://www.kinopoisk.ru/film/…' },
-                { key: 'imdb_url',      label: 'IMDb',      placeholder: 'https://www.imdb.com/title/…' },
-                { key: 'tmdb_url',      label: 'TMDB',      placeholder: 'https://www.themoviedb.org/movie/…' },
-                { key: 'wiki_url',      label: 'Wikipedia', placeholder: 'https://en.wikipedia.org/wiki/…' },
-              ].map(({ key, label, placeholder }) => (
-                <div key={key} className={styles.linkRow}>
-                  <span className={styles.linkLabel}>{label}</span>
+                <div className={styles.titleFields}>
                   <input
-                    value={form[key as keyof typeof form] as string || ''}
-                    onChange={e => set(key as keyof typeof form, e.target.value || undefined)}
-                    placeholder={placeholder}
+                    value={form.title_ru}
+                    onChange={e => set('title_ru', e.target.value)}
+                    placeholder="Russian title"
+                  />
+                  <input
+                    value={form.title_en}
+                    onChange={e => set('title_en', e.target.value)}
+                    placeholder="Original title"
+                  />
+                  <input
+                    type="number"
+                    min="1895" max="2099"
+                    value={form.year || ''}
+                    onChange={e => set('year', parseInt(e.target.value) || 0)}
+                    placeholder="Year"
                   />
                 </div>
-              ))}
-            </div>
-          </section>
+              </div>
+
+              {/* Status */}
+              <div className={styles.section}>
+                <p className={styles.label}>Status</p>
+                <div className={styles.statusGroup}>
+                  {(Object.keys(STATUS_LABELS) as MovieStatus[]).map(s => (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`${styles.statusBtn} ${form.status === s ? styles.statusActive : ''}`}
+                      data-status={s}
+                      onClick={() => set('status', s)}
+                    >
+                      {STATUS_LABELS[s]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Links */}
+              <div className={styles.section}>
+                <p className={styles.label}>
+                  Links
+                  {linksLoading && <span className={styles.linksSpinner} title="Fetching links…" />}
+                </p>
+                <div className={styles.links}>
+                  {([
+                    { key: 'kinopoisk_url', label: 'KP',   placeholder: 'https://www.kinopoisk.ru/film/…' },
+                    { key: 'imdb_url',      label: 'IMDb', placeholder: 'https://www.imdb.com/title/…' },
+                    { key: 'tmdb_url',      label: 'TMDB', placeholder: 'https://www.themoviedb.org/movie/…' },
+                    { key: 'wiki_url',      label: 'Wiki', placeholder: 'https://ru.wikipedia.org/wiki/…' },
+                  ] as const).map(({ key, label, placeholder }) => (
+                    <div key={key} className={styles.linkRow}>
+                      <span className={styles.linkLabel}>{label}</span>
+                      <input
+                        value={form[key] || ''}
+                        onChange={e => setLink(key, e.target.value)}
+                        placeholder={placeholder}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           {error && <p className={styles.error}>{error}</p>}
         </div>
 
+        {/* Footer */}
         <div className={styles.footer}>
           <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
-          <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : isEdit ? 'Save' : 'Add movie'}
-          </button>
+          {phase === 'form' && (
+            <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving…' : isEdit ? 'Save' : 'Add movie'}
+            </button>
+          )}
         </div>
+
       </div>
     </div>
   )
