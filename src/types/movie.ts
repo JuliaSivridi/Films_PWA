@@ -31,9 +31,9 @@ export interface TMDBMovie {
 }
 
 export const STATUS_LABELS: Record<MovieStatus, string> = {
-  watching: 'Смотрю',
-  want: 'Хочу',
-  watched: 'Посмотрел',
+  watching: 'Watching',
+  want: 'Want',
+  watched: 'Watched',
 }
 
 export const STATUS_COLORS: Record<MovieStatus, string> = {

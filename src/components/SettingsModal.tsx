@@ -13,7 +13,6 @@ export default function SettingsModal({ onClose }: Props) {
   const [tmdbKey, setTmdbKey] = useState(getTmdbKey())
   const [saved, setSaved] = useState(false)
 
-  // File picker
   const [pickerOpen, setPickerOpen] = useState(false)
   const [pickerFiles, setPickerFiles] = useState<SheetFile[]>([])
   const [pickerLoading, setPickerLoading] = useState(false)
@@ -21,7 +20,6 @@ export default function SettingsModal({ onClose }: Props) {
 
   const currentId = getSheetId()
   const currentName = getSheetName()
-
   const overlayRef = useRef<HTMLDivElement>(null)
 
   async function handleOpenPicker() {
@@ -43,11 +41,7 @@ export default function SettingsModal({ onClose }: Props) {
     setPickerOpen(false)
     if (file.id === currentId) return
     setSheetFile(file.id, file.name)
-    try {
-      await load()
-    } catch (e) {
-      console.error(e)
-    }
+    try { await load() } catch (e) { console.error(e) }
   }
 
   function handleSave() {
@@ -64,39 +58,29 @@ export default function SettingsModal({ onClose }: Props) {
     >
       <div className={styles.modal}>
         <div className={styles.header}>
-          <h2>Настройки</h2>
+          <h2>Settings</h2>
           <button className={styles.close} onClick={onClose}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
         <div className={styles.body}>
 
-          {/* Google Sheets file picker */}
+          {/* Spreadsheet picker */}
           <div className={styles.section}>
-            <p className={styles.sectionLabel}>Google Таблица</p>
+            <p className={styles.sectionLabel}>Google Spreadsheet</p>
             <div className={styles.fileRow}>
-              <div className={styles.fileIcon}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                  <polyline points="10 9 9 9 8 9"/>
-                </svg>
-              </div>
+              <span className={`material-symbols-outlined ${styles.fileIcon}`}>table_chart</span>
               <div className={styles.fileInfo}>
-                <span className={styles.fileName}>{currentName || 'Файл не выбран'}</span>
-                <span className={styles.fileDesc}>Источник данных фильмотеки</span>
+                <span className={styles.fileName}>{currentName || 'No file connected'}</span>
+                <span className={styles.fileDesc}>Films data source</span>
               </div>
               <button
                 className={styles.changeBtn}
                 onClick={handleOpenPicker}
                 aria-expanded={pickerOpen}
               >
-                {pickerOpen ? 'Отмена' : 'Изменить'}
+                {pickerOpen ? 'Cancel' : 'Change'}
               </button>
             </div>
 
@@ -104,14 +88,14 @@ export default function SettingsModal({ onClose }: Props) {
               <div className={styles.picker}>
                 {pickerLoading && (
                   <div className={styles.pickerEmpty}>
-                    <div className={styles.miniSpinner} /> Загружаем файлы…
+                    <div className={styles.miniSpinner} /> Loading files…
                   </div>
                 )}
                 {pickerError && (
                   <div className={styles.pickerError}>{pickerError}</div>
                 )}
                 {!pickerLoading && !pickerError && pickerFiles.length === 0 && (
-                  <div className={styles.pickerEmpty}>Таблицы не найдены</div>
+                  <div className={styles.pickerEmpty}>No Google Sheets found</div>
                 )}
                 {!pickerLoading && pickerFiles.map(file => (
                   <button
@@ -121,9 +105,7 @@ export default function SettingsModal({ onClose }: Props) {
                   >
                     <span className={styles.pickerName}>{file.name}</span>
                     {file.id === currentId && (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check</span>
                     )}
                   </button>
                 ))}
@@ -131,27 +113,27 @@ export default function SettingsModal({ onClose }: Props) {
             )}
           </div>
 
-          {/* TMDB key */}
+          {/* TMDB Key */}
           <div className={styles.section}>
             <p className={styles.sectionLabel}>TMDB API Key</p>
             <input
               type="password"
               value={tmdbKey}
               onChange={e => setTmdbKey(e.target.value)}
-              placeholder="Ключ с themoviedb.org"
+              placeholder="Your key from themoviedb.org"
               autoComplete="off"
             />
             <p className={styles.hint}>
-              Получить: <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer">themoviedb.org/settings/api</a>
+              Get key: <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer">themoviedb.org/settings/api</a>
             </p>
           </div>
 
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.cancelBtn} onClick={onClose}>Отмена</button>
+          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
           <button className={styles.saveBtn} onClick={handleSave}>
-            {saved ? '✓ Сохранено' : 'Сохранить'}
+            {saved ? '✓ Saved' : 'Save'}
           </button>
         </div>
       </div>

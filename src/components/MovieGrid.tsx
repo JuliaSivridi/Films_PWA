@@ -26,22 +26,22 @@ export default function MovieGrid() {
     <div className={styles.wrap}>
       {filtered.length === 0 && (
         <div className={styles.empty}>
-          <p>Фильмов не найдено</p>
+          <span className={`material-symbols-outlined ${styles.emptyIcon}`}>movie</span>
+          <p>No movies found</p>
           <button className={styles.addFirst} onClick={() => setShowAdd(true)}>
-            + Добавить первый фильм
+            Add your first movie
           </button>
         </div>
       )}
+
       <div className={styles.grid}>
         {filtered.map(m => (
           <MovieCard key={m.id} movie={m} onEdit={setEditing} />
         ))}
       </div>
 
-      <button className={styles.fab} onClick={() => setShowAdd(true)} title="Добавить фильм">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
+      <button className={styles.fab} onClick={() => setShowAdd(true)} title="Add movie">
+        <span className="material-symbols-outlined">add</span>
       </button>
 
       {showAdd && <AddMovieModal onClose={() => setShowAdd(false)} />}

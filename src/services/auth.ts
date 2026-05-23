@@ -1,23 +1,49 @@
-/**
- * Google Identity Services auth module.
- * Access token lives in memory only — profile cached in localStorage.
- * On app start, silent sign-in restores the session without any UI.
- */
+// Google Identity Services – client-side OAuth 2.0
+// Token lives in memory only; user profile persisted in localStorage.
+// Pattern mirrors Words_PWA auth.js exactly.
 
-let accessToken: string | null = null
-let tokenExpiresAt = 0
-let tokenClient: GoogleTokenClient | null = null
-let pendingResolve: ((t: string | null) => void) | null = null
+type TokenResponse = {
+  access_token?: string
+  expires_in?: number
+  error?: string
+}
 
-const listeners = new Set<(auth: boolean) => void>()
+declare global {
+  interface Window {
+    google: {
+      accounts: {
+        oauth2: {
+          initTokenClient(config: {
+            client_id: string
+            scope: string
+            login_hint?: string
+            callback: (r: TokenResponse) => void
+            error_callback?: (e: { type: string }) => void
+          }): { requestAccessToken(opts: { prompt: string }): void }
+          revoke(email: string, done: () => void): void
+        }
+      }
+    }
+  }
+}
 
+// --- scope: email + profile so /userinfo returns picture ---
 const SCOPES = [
+  'email',
+  'profile',
   'https://www.googleapis.com/auth/spreadsheets',
   'https://www.googleapis.com/auth/drive.metadata.readonly',
 ].join(' ')
 
 const USER_KEY = 'films_user'
-const SHEET_KEY = 'films_sheet_id'
+
+let accessToken: string | null = null
+let tokenExpiresAt = 0
+let CLIENT_ID = ''
+
+const listeners = new Set<(isAuth: boolean) => void>()
+
+/* ── types ─────────────────────────────────────────────────────── */
 
 export interface UserProfile {
   email: string
@@ -25,27 +51,20 @@ export interface UserProfile {
   picture: string
 }
 
-/* ── helpers ─────────────────────────────────────────────────────── */
+/* ── profile storage ────────────────────────────────────────────── */
 
 export function getUser(): UserProfile | null {
-  const raw = localStorage.getItem(USER_KEY)
-  return raw ? (JSON.parse(raw) as UserProfile) : null
+  try {
+    const raw = localStorage.getItem(USER_KEY)
+    return raw ? (JSON.parse(raw) as UserProfile) : null
+  } catch { return null }
 }
 
 function saveUser(p: UserProfile) {
   localStorage.setItem(USER_KEY, JSON.stringify(p))
 }
 
-function notify(auth: boolean) {
-  listeners.forEach(fn => fn(auth))
-}
-
-/* ── public API ──────────────────────────────────────────────────── */
-
-export function onAuthChange(fn: (auth: boolean) => void): () => void {
-  listeners.add(fn)
-  return () => listeners.delete(fn)
-}
+/* ── token helpers ──────────────────────────────────────────────── */
 
 export function getToken(): string | null { return accessToken }
 
@@ -53,27 +72,18 @@ export function isTokenFresh(): boolean {
   return !!accessToken && Date.now() < tokenExpiresAt - 30_000
 }
 
-/* ── token lifecycle ─────────────────────────────────────────────── */
+/* ── listeners ──────────────────────────────────────────────────── */
 
-function onTokenSuccess(r: GoogleTokenResponse) {
-  accessToken = r.access_token
-  tokenExpiresAt = Date.now() + r.expires_in * 1000
-  pendingResolve?.(r.access_token)
-  pendingResolve = null
-  notify(true)
-  fetchUserProfile().then(p => { if (p) saveUser(p) })
+export function onAuthChange(fn: (isAuth: boolean) => void): () => void {
+  listeners.add(fn)
+  return () => listeners.delete(fn)
 }
 
-function onTokenError() {
-  pendingResolve?.(null)
-  pendingResolve = null
-  if (!accessToken) notify(false)
+function notify(isAuth: boolean) {
+  listeners.forEach(fn => fn(isAuth))
 }
 
-function handleCallback(r: GoogleTokenResponse) {
-  if (r.error || !r.access_token) { onTokenError(); return }
-  onTokenSuccess(r)
-}
+/* ── profile fetch ──────────────────────────────────────────────── */
 
 async function fetchUserProfile(): Promise<UserProfile | null> {
   if (!accessToken) return null
@@ -87,69 +97,111 @@ async function fetchUserProfile(): Promise<UserProfile | null> {
   } catch { return null }
 }
 
-/** Request token, returns access_token or null (times out after 5 s) */
-function requestToken(prompt = '', hint?: string): Promise<string | null> {
-  return Promise.race([
-    new Promise<string | null>(resolve => {
-      pendingResolve = resolve
-      tokenClient!.requestAccessToken({ prompt, login_hint: hint })
-    }),
-    new Promise<null>(resolve =>
-      setTimeout(() => { pendingResolve = null; resolve(null) }, 5_000),
-    ),
-  ])
+/* ── token client factory ───────────────────────────────────────── */
+
+function makeTokenClient(
+  onSuccess: () => void,
+  onError: (type?: string) => void,
+) {
+  return window.google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    login_hint: getUser()?.email ?? undefined,
+    callback: async (r: TokenResponse) => {
+      if (r.error || !r.access_token) {
+        onError(r.error)
+        return
+      }
+      accessToken = r.access_token
+      tokenExpiresAt = Date.now() + (r.expires_in ?? 3600) * 1000
+
+      // Fetch and persist profile on first sign-in (needed for silent re-auth)
+      if (!getUser()) {
+        try {
+          const p = await fetchUserProfile()
+          if (p) saveUser(p)
+        } catch { /* still usable without profile */ }
+      }
+
+      notify(true)
+      onSuccess()
+    },
+    error_callback: (err: { type: string }) => {
+      // popup_closed is not an error — user just dismissed
+      if (err.type !== 'popup_closed') {
+        onError(err.type)
+      }
+    },
+  })
 }
 
-/* ── init ────────────────────────────────────────────────────────── */
+/* ── public API ─────────────────────────────────────────────────── */
 
-function waitForGoogle(): Promise<void> {
+/** Silent token restore (no UI). Resolves true if token obtained. */
+export function trySilentSignIn(): Promise<boolean> {
   return new Promise(resolve => {
-    const check = () => {
+    if (!window.google?.accounts?.oauth2) { resolve(false); return }
+    const client = makeTokenClient(
+      () => resolve(true),
+      () => resolve(false),
+    )
+    client.requestAccessToken({ prompt: '' })
+  })
+}
+
+/** Interactive sign-in popup. Returns promise that resolves on success. */
+export function signIn(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!window.google?.accounts?.oauth2) {
+      reject(new Error('Google Identity Services not loaded'))
+      return
+    }
+    const client = makeTokenClient(
+      () => resolve(),
+      (e) => reject(new Error(e ?? 'Sign-in failed')),
+    )
+    client.requestAccessToken({ prompt: 'consent' })
+  })
+}
+
+export function signOut(): void {
+  const email = getUser()?.email
+  if (email) window.google?.accounts?.oauth2?.revoke(email, () => {})
+  accessToken = null
+  tokenExpiresAt = 0
+  localStorage.removeItem(USER_KEY)
+  notify(false)
+}
+
+/** Refresh token silently before API calls. */
+export async function refreshTokenIfNeeded(): Promise<string | null> {
+  if (isTokenFresh()) return accessToken
+  const ok = await trySilentSignIn()
+  return ok ? accessToken : null
+}
+
+/* ── init ───────────────────────────────────────────────────────── */
+
+function waitForGIS(): Promise<void> {
+  return new Promise(resolve => {
+    function check() {
       if (window.google?.accounts?.oauth2) resolve()
-      else requestAnimationFrame(check)
+      else setTimeout(check, 50)
     }
     check()
   })
 }
 
 export async function initAuth(clientId: string): Promise<void> {
-  await waitForGoogle()
+  CLIENT_ID = clientId
+  await waitForGIS()
 
-  tokenClient = window.google.accounts.oauth2.initTokenClient({
-    client_id: clientId,
-    scope: SCOPES,
-    callback: handleCallback,
-    error_callback: onTokenError,
-  })
-
-  const user = getUser()
-  if (user) {
-    await requestToken('', user.email)
-    // notify() was called inside handleCallback / onTokenError
+  if (getUser()) {
+    // Has saved profile → restore token silently (no UI)
+    const ok = await trySilentSignIn()
+    if (!ok) notify(false)
+    // if ok → notify(true) already called inside makeTokenClient callback
   } else {
     notify(false)
   }
-}
-
-/* ── public actions ──────────────────────────────────────────────── */
-
-export function signIn(): void {
-  tokenClient?.requestAccessToken({ prompt: 'consent' })
-}
-
-export function signOut(): void {
-  if (accessToken) window.google?.accounts?.oauth2?.revoke(accessToken, () => {})
-  accessToken = null
-  tokenExpiresAt = 0
-  localStorage.removeItem(USER_KEY)
-  localStorage.removeItem(SHEET_KEY)
-  notify(false)
-}
-
-/** Call before every API request to ensure a fresh token. */
-export async function refreshTokenIfNeeded(): Promise<string | null> {
-  if (isTokenFresh()) return accessToken
-  const user = getUser()
-  if (!user) return null
-  return requestToken('', user.email)
 }

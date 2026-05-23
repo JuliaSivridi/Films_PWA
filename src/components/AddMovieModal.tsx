@@ -59,7 +59,6 @@ export default function AddMovieModal({ movie, onClose }: Props) {
       tmdb_id: String(t.id),
       poster_path: t.poster_path || '',
       tmdb_url: `https://www.themoviedb.org/movie/${t.id}`,
-      imdb_url: f.imdb_url || `https://www.imdb.com/find?q=${encodeURIComponent(t.original_title)}`,
     }))
     setTmdbQuery('')
     setTmdbResults([])
@@ -71,7 +70,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
 
   async function handleSave() {
     if (!form.title_ru && !form.title_en) {
-      setError('Введите хотя бы одно название')
+      setError('Enter at least one title')
       return
     }
     setSaving(true)
@@ -91,30 +90,24 @@ export default function AddMovieModal({ movie, onClose }: Props) {
     }
   }
 
-  function handleOverlay(e: React.MouseEvent) {
-    if (e.target === overlayRef.current) onClose()
-  }
-
   return (
-    <div className={styles.overlay} ref={overlayRef} onClick={handleOverlay}>
+    <div className={styles.overlay} ref={overlayRef} onClick={e => e.target === overlayRef.current && onClose()}>
       <div className={styles.modal}>
         <div className={styles.header}>
-          <h2>{isEdit ? 'Редактировать фильм' : 'Добавить фильм'}</h2>
+          <h2>{isEdit ? 'Edit movie' : 'Add movie'}</h2>
           <button className={styles.close} onClick={onClose}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
         <div className={styles.body}>
           {/* TMDB Search */}
           <section className={styles.section}>
-            <label className={styles.label}>Поиск в TMDB</label>
+            <label className={styles.label}>Search TMDB</label>
             <div className={styles.tmdbSearch}>
               <input
                 type="search"
-                placeholder="Название фильма…"
+                placeholder="Movie title…"
                 value={tmdbQuery}
                 onChange={e => setTmdbQuery(e.target.value)}
               />
@@ -143,7 +136,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
             )}
           </section>
 
-          {/* Preview */}
+          {/* Poster preview */}
           {form.poster_path && (
             <div className={styles.preview}>
               <img src={getPosterUrl(form.poster_path, 'w185')} alt="" />
@@ -153,18 +146,18 @@ export default function AddMovieModal({ movie, onClose }: Props) {
           {/* Titles */}
           <div className={styles.row}>
             <div className={styles.field}>
-              <label className={styles.label}>Название (RU)</label>
-              <input value={form.title_ru} onChange={e => set('title_ru', e.target.value)} placeholder="Русское название" />
+              <label className={styles.label}>Title (RU)</label>
+              <input value={form.title_ru} onChange={e => set('title_ru', e.target.value)} placeholder="Russian title" />
             </div>
             <div className={styles.field}>
-              <label className={styles.label}>Название (EN)</label>
+              <label className={styles.label}>Title (EN)</label>
               <input value={form.title_en} onChange={e => set('title_en', e.target.value)} placeholder="English title" />
             </div>
           </div>
 
           <div className={styles.row}>
             <div className={styles.field}>
-              <label className={styles.label}>Год</label>
+              <label className={styles.label}>Year</label>
               <input
                 type="number" min="1895" max="2099"
                 value={form.year || ''}
@@ -173,11 +166,11 @@ export default function AddMovieModal({ movie, onClose }: Props) {
               />
             </div>
             <div className={styles.field}>
-              <label className={styles.label}>Жанры</label>
+              <label className={styles.label}>Genres</label>
               <input
                 value={form.genres.join(', ')}
                 onChange={e => set('genres', e.target.value.split(',').map(g => g.trim()).filter(Boolean))}
-                placeholder="Боевик, Драма"
+                placeholder="Action, Drama"
               />
             </div>
           </div>
@@ -185,7 +178,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
           {/* Status + Rating */}
           <div className={styles.row}>
             <div className={styles.field}>
-              <label className={styles.label}>Статус</label>
+              <label className={styles.label}>Status</label>
               <div className={styles.statusGroup}>
                 {(Object.keys(STATUS_LABELS) as MovieStatus[]).map(s => (
                   <button
@@ -201,7 +194,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
               </div>
             </div>
             <div className={styles.field}>
-              <label className={styles.label}>Оценка (1–10)</label>
+              <label className={styles.label}>Rating (1–10)</label>
               <div className={styles.ratingRow}>
                 <input
                   type="range" min="1" max="10" step="0.5"
@@ -209,7 +202,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                   onChange={e => set('rating', parseFloat(e.target.value))}
                 />
                 <span className={styles.ratingVal}>
-                  {form.rating != null ? `★ ${form.rating}` : '–'}
+                  {form.rating != null ? `★ ${form.rating}` : '—'}
                 </span>
                 {form.rating != null && (
                   <button className={styles.clearBtn} onClick={() => set('rating', undefined)}>×</button>
@@ -218,26 +211,26 @@ export default function AddMovieModal({ movie, onClose }: Props) {
             </div>
           </div>
 
-          {/* Review */}
+          {/* Notes */}
           <div className={styles.field}>
-            <label className={styles.label}>Заметка</label>
+            <label className={styles.label}>Notes</label>
             <textarea
               value={form.review || ''}
               onChange={e => set('review', e.target.value || undefined)}
-              placeholder="Впечатления, мысли…"
+              placeholder="Your impressions, thoughts…"
               rows={3}
             />
           </div>
 
           {/* Links */}
           <section className={styles.section}>
-            <label className={styles.label}>Ссылки</label>
+            <label className={styles.label}>Links</label>
             <div className={styles.links}>
               {[
-                { key: 'kinopoisk_url', label: 'Кинопоиск', placeholder: 'https://www.kinopoisk.ru/film/…' },
-                { key: 'imdb_url', label: 'IMDb', placeholder: 'https://www.imdb.com/title/…' },
-                { key: 'tmdb_url', label: 'TMDB', placeholder: 'https://www.themoviedb.org/movie/…' },
-                { key: 'wiki_url', label: 'Wikipedia', placeholder: 'https://ru.wikipedia.org/wiki/…' },
+                { key: 'kinopoisk_url', label: 'Kinopoisk', placeholder: 'https://www.kinopoisk.ru/film/…' },
+                { key: 'imdb_url',      label: 'IMDb',      placeholder: 'https://www.imdb.com/title/…' },
+                { key: 'tmdb_url',      label: 'TMDB',      placeholder: 'https://www.themoviedb.org/movie/…' },
+                { key: 'wiki_url',      label: 'Wikipedia', placeholder: 'https://en.wikipedia.org/wiki/…' },
               ].map(({ key, label, placeholder }) => (
                 <div key={key} className={styles.linkRow}>
                   <span className={styles.linkLabel}>{label}</span>
@@ -255,9 +248,9 @@ export default function AddMovieModal({ movie, onClose }: Props) {
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.cancelBtn} onClick={onClose}>Отмена</button>
+          <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
           <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-            {saving ? 'Сохраняется…' : isEdit ? 'Сохранить' : 'Добавить'}
+            {saving ? 'Saving…' : isEdit ? 'Save' : 'Add movie'}
           </button>
         </div>
       </div>
