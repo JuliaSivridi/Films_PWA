@@ -226,7 +226,6 @@
 
 .statusBtn:hover { border-color: var(--accent); color: var(--text); }
 
-.statusActive[data-status="watching"] { background: rgba(59,130,246,.15); color: var(--watching); border-color: var(--watching); }
 .statusActive[data-status="want"]     { background: rgba(245,158,11,.15);  color: var(--want);     border-color: var(--want);     }
 .statusActive[data-status="watched"]  { background: rgba(16,185,129,.15);  color: var(--watched);  border-color: var(--watched);  }
 

@@ -58,7 +58,7 @@ export async function getMovieDetails(tmdbId: string): Promise<MovieDetails> {
       external_ids?: { imdb_id?: string | null }
     }
     return {
-      runtime:  data.runtime  || null,
+      runtime:  (typeof data.runtime === 'number' && data.runtime > 0) ? data.runtime : null,
       imdb_id:  data.external_ids?.imdb_id || null,
     }
   } catch {

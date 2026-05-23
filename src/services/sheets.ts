@@ -3,7 +3,7 @@
  * Gets token via refreshTokenIfNeeded(), sheet ID via getSheetId().
  *
  * Columns A–N (14 total):
- *   id | title_ru | title_en | year | status |
+ *   id | title_ru | title_orig | year | status |
  *   tmdb_id | poster_path |
  *   genres | tmdb_rating | duration_min |
  *   kinopoisk_url | imdb_url | tmdb_url | wiki_url
@@ -16,7 +16,7 @@ import { getSheetId } from './drive'
 const SHEETS_BASE = 'https://sheets.googleapis.com/v4/spreadsheets'
 const SHEET_NAME  = 'Movies'
 const HEADERS = [
-  'id', 'title_ru', 'title_en', 'year', 'status',
+  'id', 'title_ru', 'title_orig', 'year', 'status',
   'tmdb_id', 'poster_path',
   'genres', 'tmdb_rating', 'duration_min',
   'kinopoisk_url', 'imdb_url', 'tmdb_url', 'wiki_url',
@@ -47,7 +47,7 @@ function rowToMovie(row: string[], rowIndex: number): Movie {
   return {
     id:            row[0]  || String(rowIndex),
     title_ru:      row[1]  || '',
-    title_en:      row[2]  || '',
+    title_orig:      row[2]  || '',
     year:          parseInt(row[3]) || 0,
     status:        (row[4] as MovieStatus) || 'want',
     tmdb_id:       row[5]  || undefined,
@@ -67,7 +67,7 @@ function movieToRow(m: Movie): string[] {
   return [
     m.id,
     m.title_ru,
-    m.title_en,
+    m.title_orig,
     String(m.year),
     m.status,
     m.tmdb_id       || '',
@@ -107,7 +107,7 @@ export async function fetchMovies(): Promise<Movie[]> {
   return (data.values as string[][])
     .slice(1)
     .map((row, i) => rowToMovie(row, i))
-    .filter(m => m.id && (m.title_ru || m.title_en))
+    .filter(m => m.id && (m.title_ru || m.title_orig))
 }
 
 export async function addMovie(movie: Movie): Promise<Movie> {

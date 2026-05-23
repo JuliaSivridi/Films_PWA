@@ -27,7 +27,7 @@ export default function MovieCard({ movie, onEdit }: Props) {
     <div className={styles.card}>
       <div className={styles.poster}>
         {poster
-          ? <img src={poster} alt={movie.title_en || movie.title_ru} loading="lazy" />
+          ? <img src={poster} alt={movie.title_orig || movie.title_ru} loading="lazy" />
           : <div className={styles.noPoster}>
               <span className="material-symbols-outlined">image</span>
             </div>
@@ -62,10 +62,10 @@ export default function MovieCard({ movie, onEdit }: Props) {
           )}
         </div>
 
-        <h3 className={styles.titleRu}>{movie.title_ru || movie.title_en}</h3>
+        <h3 className={styles.titleRu}>{movie.title_ru || movie.title_orig}</h3>
 
-        {movie.title_en && movie.title_ru && (
-          <p className={styles.titleEn}>{movie.title_en}</p>
+        {movie.title_orig && movie.title_ru && (
+          <p className={styles.titleEn}>{movie.title_orig}</p>
         )}
 
         {/* Year + duration */}

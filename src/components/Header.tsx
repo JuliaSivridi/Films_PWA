@@ -6,9 +6,8 @@ import type { MovieStatus } from '../types/movie'
 import styles from './Header.module.css'
 
 const TABS: { key: MovieStatus | 'all'; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'watching', label: 'Watching' },
-  { key: 'want', label: 'Want' },
+  { key: 'all',     label: 'All' },
+  { key: 'want',    label: 'Want' },
   { key: 'watched', label: 'Watched' },
 ]
 
@@ -31,9 +30,8 @@ export default function Header() {
   }, [menuOpen])
 
   const counts = {
-    all: movies.length,
-    watching: movies.filter(m => m.status === 'watching').length,
-    want: movies.filter(m => m.status === 'want').length,
+    all:     movies.length,
+    want:    movies.filter(m => m.status === 'want').length,
     watched: movies.filter(m => m.status === 'watched').length,
   }
 

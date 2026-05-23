@@ -173,7 +173,6 @@
 .tab:hover { color: var(--text); background: var(--surface-2); }
 .tab.active { color: var(--text); border-bottom-color: var(--accent); }
 
-.tab[data-status="watching"].active { border-bottom-color: var(--watching); }
 .tab[data-status="want"].active     { border-bottom-color: var(--want); }
 .tab[data-status="watched"].active  { border-bottom-color: var(--watched); }
 

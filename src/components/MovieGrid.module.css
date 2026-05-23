@@ -1,13 +1,61 @@
 .wrap {
   position: relative;
   min-height: calc(100vh - 120px);
-  padding: 20px 16px 80px;
+  padding: 0 0 80px;
 }
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 8px;
+}
+
+.resultCount {
+  font-size: .8rem;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.viewBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 28px;
+  border-radius: 6px;
+  color: var(--text-3);
+  transition: background .15s, color .15s;
+}
+
+.viewBtn:hover { color: var(--text); }
+
+.viewBtnActive {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+
+.viewBtn .material-symbols-outlined { font-size: 18px; }
+
+/* ── Grid ────────────────────────────────────────────────────── */
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 14px;
+  padding: 0 16px;
 }
 
 @media (min-width: 480px) {

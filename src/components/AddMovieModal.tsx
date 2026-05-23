@@ -12,7 +12,7 @@ type Phase    = 'search' | 'form'
 type FormData = Omit<Movie, 'id' | '_row'>
 
 const BLANK: FormData = {
-  title_ru: '', title_en: '', year: 0, status: 'want',
+  title_ru: '', title_orig: '', year: 0, status: 'want',
   tmdb_id: undefined, poster_path: undefined,
   genres: undefined, tmdb_rating: undefined, duration_min: undefined,
   kinopoisk_url: undefined, imdb_url: undefined,
@@ -82,7 +82,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
     // Show form immediately with what the search result already gave us
     setForm({
       title_ru:    t.title,
-      title_en:    t.original_title,
+      title_orig:    t.original_title,
       year,
       status:      form.status,
       tmdb_id:     tmdbId,
@@ -140,7 +140,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
   /* ── save ───────────────────────────────────────────────────────── */
 
   async function handleSave() {
-    if (!form.title_ru && !form.title_en) {
+    if (!form.title_ru && !form.title_orig) {
       setError('Enter at least one title')
       return
     }
@@ -250,8 +250,8 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                     placeholder="Russian title"
                   />
                   <input
-                    value={form.title_en}
-                    onChange={e => set('title_en', e.target.value)}
+                    value={form.title_orig}
+                    onChange={e => set('title_orig', e.target.value)}
                     placeholder="Original title"
                   />
                   <input
