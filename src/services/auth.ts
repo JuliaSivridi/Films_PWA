@@ -13,7 +13,7 @@ const listeners = new Set<(auth: boolean) => void>()
 
 const SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets',
-  'https://www.googleapis.com/auth/drive.file',
+  'https://www.googleapis.com/auth/drive.metadata.readonly',
 ].join(' ')
 
 const USER_KEY = 'films_user'

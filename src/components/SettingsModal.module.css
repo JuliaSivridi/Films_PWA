@@ -1,7 +1,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.55);
+  background: rgba(0,0,0,.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,7 +15,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   box-shadow: var(--shadow);
 }
 
@@ -36,27 +36,23 @@
   color: var(--text-2);
   transition: background .15s;
 }
-
 .close:hover { background: var(--surface-2); color: var(--text); }
 
 .body {
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+/* Section */
+.section { display: flex; flex-direction: column; gap: 8px; }
 
-.field label {
-  font-size: .75rem;
-  font-weight: 600;
+.sectionLabel {
+  font-size: .72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: .07em;
   color: var(--text-2);
 }
 
@@ -66,35 +62,122 @@
   line-height: 1.4;
 }
 
-.sheetId {
-  font-size: .8rem;
-  color: var(--text-2);
-}
-
-.sheetId code {
-  font-family: monospace;
-  background: var(--surface-3);
-  padding: 1px 4px;
-  border-radius: 4px;
-  font-size: .75rem;
-}
-
-.resetBtn {
-  padding: 8px 14px;
+/* File row */
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: .8rem;
-  font-weight: 500;
-  color: var(--text);
-  text-align: left;
-  transition: background .15s;
-  width: fit-content;
 }
 
-.resetBtn:hover:not(:disabled) { background: var(--surface-3); }
-.resetBtn:disabled { opacity: .5; }
+.fileIcon {
+  color: var(--accent);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
 
+.fileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.fileName {
+  font-size: .875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.fileDesc {
+  font-size: .72rem;
+  color: var(--text-3);
+}
+
+.changeBtn {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s;
+  white-space: nowrap;
+}
+.changeBtn:hover { background: var(--accent-light); border-color: var(--accent); }
+
+/* Picker dropdown */
+.picker {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.pickerEmpty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  font-size: .85rem;
+  color: var(--text-2);
+}
+
+.pickerError {
+  padding: 12px 16px;
+  font-size: .8rem;
+  color: var(--danger);
+}
+
+.pickerItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px 16px;
+  font-size: .875rem;
+  color: var(--text);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+  gap: 8px;
+}
+.pickerItem:last-child { border-bottom: none; }
+.pickerItem:hover { background: var(--surface-3); }
+
+.pickerItemActive { color: var(--accent); }
+.pickerItemActive svg { color: var(--accent); flex-shrink: 0; }
+
+.pickerName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.miniSpinner {
+  width: 14px; height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Footer */
 .footer {
   display: flex;
   justify-content: flex-end;
@@ -112,7 +195,6 @@
   color: var(--text);
   transition: background .15s;
 }
-
 .cancelBtn:hover { background: var(--surface-3); }
 
 .saveBtn {
@@ -123,5 +205,4 @@
   font-weight: 600;
   transition: background .15s;
 }
-
 .saveBtn:hover { background: var(--accent-hover); }
