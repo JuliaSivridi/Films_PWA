@@ -1,24 +1,50 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── Light theme ─────────────────────────────────────────────────── */
 :root {
-  --bg: #0a0a0a;
-  --surface: #141414;
-  --surface-2: #1e1e1e;
-  --surface-3: #2a2a2a;
-  --border: #2f2f2f;
-  --text: #f0f0f0;
-  --text-2: #999;
-  --text-3: #555;
-  --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-  --accent-light: rgba(124,58,237,.15);
+  --bg: #F5F3F0;
+  --bg-rgb: 245, 243, 240;
+  --surface: #FFFFFF;
+  --surface-2: #F0EDE8;
+  --surface-3: #E5E1DA;
+  --border: #DDD9D2;
+  --text: #1C1C1C;
+  --text-2: #6B6B6B;
+  --text-3: #A0A0A0;
+
+  --accent: #E07E38;
+  --accent-hover: #C96E2F;
+  --accent-light: rgba(224, 126, 56, .14);
+
   --watching: #3b82f6;
   --want: #f59e0b;
   --watched: #10b981;
   --danger: #ef4444;
+
   --radius: 12px;
   --radius-sm: 8px;
-  --shadow: 0 4px 24px rgba(0,0,0,.6);
+  --shadow: 0 4px 20px rgba(0,0,0,.08);
+}
+
+/* ── Dark theme ──────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f0f;
+    --bg-rgb: 15, 15, 15;
+    --surface: #1a1a1a;
+    --surface-2: #242424;
+    --surface-3: #2e2e2e;
+    --border: #333;
+    --text: #f0f0f0;
+    --text-2: #999;
+    --text-3: #555;
+
+    --accent: #E8935A;
+    --accent-hover: #D4814A;
+    --accent-light: rgba(232, 147, 90, .15);
+
+    --shadow: 0 4px 24px rgba(0,0,0,.55);
+  }
 }
 
 html, body, #root { height: 100%; }
@@ -47,7 +73,7 @@ input, textarea, select {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  padding: 9px 13px;
   outline: none;
   width: 100%;
   transition: border-color .2s;
@@ -55,17 +81,15 @@ input, textarea, select {
 
 input:focus, textarea:focus, select:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
 }
 
-input::placeholder, textarea::placeholder {
-  color: var(--text-3);
-}
-
+input::placeholder, textarea::placeholder { color: var(--text-3); }
 textarea { resize: vertical; min-height: 80px; }
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 3px; }

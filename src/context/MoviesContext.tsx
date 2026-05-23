@@ -3,7 +3,6 @@ import type { Movie, MovieStatus } from '../types/movie'
 import {
   fetchMovies, addMovie, updateMovie, deleteMovie, initializeSheet,
 } from '../services/sheets'
-import { useAuth } from './AuthContext'
 
 interface State {
   movies: Movie[]
@@ -53,36 +52,31 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, {
     movies: [], loading: false, error: null, query: '', statusFilter: 'all',
   })
-  const { token } = useAuth()
 
   const load = useCallback(async () => {
-    if (!token) return
     dispatch({ type: 'LOADING' })
     try {
-      await initializeSheet(token)
-      dispatch({ type: 'SET', payload: await fetchMovies(token) })
+      await initializeSheet()
+      dispatch({ type: 'SET', payload: await fetchMovies() })
     } catch (e) {
       dispatch({ type: 'ERROR', payload: String(e) })
     }
-  }, [token])
+  }, [])
 
   const create = useCallback(async (m: Movie) => {
-    if (!token) return
-    const saved = await addMovie(token, m)
+    const saved = await addMovie(m)
     dispatch({ type: 'ADD', payload: saved })
-  }, [token])
+  }, [])
 
   const edit = useCallback(async (m: Movie) => {
-    if (!token) return
-    await updateMovie(token, m)
+    await updateMovie(m)
     dispatch({ type: 'UPDATE', payload: m })
-  }, [token])
+  }, [])
 
   const remove = useCallback(async (m: Movie) => {
-    if (!token) return
-    await deleteMovie(token, m)
+    await deleteMovie(m)
     dispatch({ type: 'DELETE', payload: m.id })
-  }, [token])
+  }, [])
 
   const setQuery = useCallback((q: string) => dispatch({ type: 'QUERY', payload: q }), [])
   const setFilter = useCallback((f: MovieStatus | 'all') => dispatch({ type: 'FILTER', payload: f }), [])

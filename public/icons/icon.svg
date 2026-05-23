@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#1c1c2e"/>
-  <rect x="64" y="160" width="384" height="192" rx="16" fill="#7c3aed"/>
-  <rect x="64" y="160" width="48" height="48" rx="8" fill="#1c1c2e"/>
-  <rect x="64" y="224" width="48" height="48" rx="8" fill="#1c1c2e"/>
-  <rect x="64" y="288" width="48" height="32" rx="8" fill="#1c1c2e"/>
-  <rect x="400" y="160" width="48" height="48" rx="8" fill="#1c1c2e"/>
-  <rect x="400" y="224" width="48" height="48" rx="8" fill="#1c1c2e"/>
-  <rect x="400" y="288" width="48" height="32" rx="8" fill="#1c1c2e"/>
-  <rect x="128" y="176" width="256" height="160" rx="8" fill="#2d1b69"/>
-  <polygon points="220,196 220,316 316,256" fill="#a78bfa"/>
-  <rect x="96" y="128" width="320" height="16" rx="8" fill="#4c1d95"/>
-  <rect x="96" y="368" width="320" height="16" rx="8" fill="#4c1d95"/>
+  <rect width="512" height="512" rx="96" fill="#E07E38"/>
+  <rect x="80" y="170" width="352" height="200" rx="18" fill="rgba(0,0,0,.25)"/>
+  <rect x="80" y="170" width="52" height="52" rx="10" fill="rgba(0,0,0,.35)"/>
+  <rect x="80" y="240" width="52" height="52" rx="10" fill="rgba(0,0,0,.35)"/>
+  <rect x="80" y="290" width="52" height="28" rx="10" fill="rgba(0,0,0,.35)"/>
+  <rect x="380" y="170" width="52" height="52" rx="10" fill="rgba(0,0,0,.35)"/>
+  <rect x="380" y="240" width="52" height="52" rx="10" fill="rgba(0,0,0,.35)"/>
+  <rect x="380" y="290" width="52" height="28" rx="10" fill="rgba(0,0,0,.35)"/>
+  <rect x="148" y="185" width="216" height="170" rx="10" fill="rgba(0,0,0,.15)"/>
+  <polygon points="220,208 220,338 316,273" fill="rgba(255,255,255,.9)"/>
+  <rect x="100" y="138" width="312" height="18" rx="9" fill="rgba(0,0,0,.3)"/>
+  <rect x="100" y="374" width="312" height="18" rx="9" fill="rgba(0,0,0,.3)"/>
 </svg>

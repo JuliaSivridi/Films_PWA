@@ -1,21 +1,38 @@
 import { useRef, useState } from 'react'
-import { getSheetsId } from '../services/sheets'
 import { getTmdbKey } from '../services/tmdb'
+import { clearSheetId, getSheetId } from '../services/drive'
+import { useMovies } from '../context/MoviesContext'
 import styles from './SettingsModal.module.css'
 
 interface Props { onClose: () => void }
 
 export default function SettingsModal({ onClose }: Props) {
-  const [sheetsId, setSheetsId] = useState(getSheetsId())
+  const { load } = useMovies()
   const [tmdbKey, setTmdbKey] = useState(getTmdbKey())
   const [saved, setSaved] = useState(false)
+  const [resetting, setResetting] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
 
+  const sheetId = getSheetId()
+
   function handleSave() {
-    localStorage.setItem('sheets_id', sheetsId.trim())
     localStorage.setItem('tmdb_key', tmdbKey.trim())
     setSaved(true)
     setTimeout(() => { setSaved(false); onClose() }, 800)
+  }
+
+  async function handleReset() {
+    setResetting(true)
+    clearSheetId()
+    try {
+      const { findOrCreateFilmsFile } = await import('../services/drive')
+      await findOrCreateFilmsFile()
+      await load()
+    } catch (e) {
+      console.error(e)
+    }
+    setResetting(false)
+    onClose()
   }
 
   return (
@@ -29,31 +46,36 @@ export default function SettingsModal({ onClose }: Props) {
             </svg>
           </button>
         </div>
+
         <div className={styles.body}>
-          <div className={styles.field}>
-            <label>Google Spreadsheet ID</label>
-            <input
-              value={sheetsId}
-              onChange={e => setSheetsId(e.target.value)}
-              placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
-            />
-            <p className={styles.hint}>
-              Из URL таблицы: docs.google.com/spreadsheets/d/<b>ЭТОТ_ID</b>/edit
-            </p>
-          </div>
           <div className={styles.field}>
             <label>TMDB API Key</label>
             <input
               type="password"
               value={tmdbKey}
               onChange={e => setTmdbKey(e.target.value)}
-              placeholder="Ваш API ключ с themoviedb.org"
+              placeholder="Ключ с themoviedb.org"
+              autoComplete="off"
             />
             <p className={styles.hint}>
               Получить: <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer">themoviedb.org/settings/api</a>
             </p>
           </div>
+
+          <div className={styles.field}>
+            <label>Google Таблица</label>
+            <p className={styles.sheetId}>
+              {sheetId
+                ? <>ID: <code>{sheetId.slice(0, 20)}…</code></>
+                : 'Не подключена'}
+            </p>
+            <button className={styles.resetBtn} onClick={handleReset} disabled={resetting}>
+              {resetting ? 'Переподключение…' : '↻ Переподключить таблицу'}
+            </button>
+            <p className={styles.hint}>Ищет или создаёт файл <b>db_films</b> на вашем Google Drive</p>
+          </div>
         </div>
+
         <div className={styles.footer}>
           <button className={styles.cancelBtn} onClick={onClose}>Отмена</button>
           <button className={styles.saveBtn} onClick={handleSave}>

@@ -2,17 +2,18 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(10,10,10,.85);
+  background: rgba(var(--bg-rgb), .88);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  padding: 12px 20px 0;
+  padding: 10px 16px 0;
 }
 
 .top {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
 .logo {
@@ -20,11 +21,13 @@
   align-items: center;
   gap: 8px;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   white-space: nowrap;
   flex-shrink: 0;
+  color: var(--text);
 }
 
+/* Search */
 .search {
   position: relative;
   flex: 1;
@@ -33,8 +36,7 @@
 
 .search input {
   padding-left: 36px;
-  background: var(--surface-2);
-  height: 38px;
+  height: 36px;
   font-size: .875rem;
 }
 
@@ -47,28 +49,109 @@
   pointer-events: none;
 }
 
-.actions {
-  display: flex;
-  gap: 4px;
+/* Avatar */
+.userWrap {
+  position: relative;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
-.iconBtn {
+.avatarBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  color: var(--text-2);
-  transition: background .2s, color .2s;
+  flex-shrink: 0;
+  transition: opacity .15s, box-shadow .15s;
 }
 
-.iconBtn:hover {
-  background: var(--surface-2);
+.avatarBtn:hover { opacity: .85; box-shadow: 0 0 0 2px var(--accent); }
+
+.avatarImg {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dropdown menu */
+.menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 210px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  overflow: hidden;
+  animation: menuIn .12s ease;
+  z-index: 50;
+}
+
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(-6px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.menuHeader {
+  padding: 14px 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.menuName {
+  font-size: .9rem;
+  font-weight: 600;
   color: var(--text);
 }
 
+.menuEmail {
+  font-size: .75rem;
+  color: var(--text-2);
+}
+
+.menuDivider {
+  height: 1px;
+  background: var(--border);
+  margin: 2px 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: .875rem;
+  color: var(--text);
+  text-align: left;
+  transition: background .12s;
+}
+
+.menuItem:hover { background: var(--surface-2); }
+
+.menuSignOut { color: var(--danger); }
+.menuSignOut:hover { background: rgba(239,68,68,.08); }
+
+/* Tabs */
 .tabs {
   display: flex;
   gap: 2px;
@@ -82,17 +165,13 @@
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   font-size: .875rem;
   color: var(--text-2);
-  transition: color .2s, background .2s;
+  transition: color .15s, background .15s;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
 }
 
 .tab:hover { color: var(--text); background: var(--surface-2); }
-
-.tab.active {
-  color: var(--text);
-  border-bottom-color: var(--accent);
-}
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
 
 .tab[data-status="watching"].active { border-bottom-color: var(--watching); }
 .tab[data-status="want"].active     { border-bottom-color: var(--want); }
@@ -102,12 +181,12 @@
   background: var(--surface-3);
   border-radius: 20px;
   padding: 1px 7px;
-  font-size: .75rem;
+  font-size: .72rem;
   font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 520px) {
   .logo span { display: none; }
-  .top { gap: 8px; }
-  .tab { padding: 8px 10px; }
+  .tab { padding: 8px 10px; font-size: .8rem; }
+  .count { display: none; }
 }

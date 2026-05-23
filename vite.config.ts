@@ -11,8 +11,8 @@ export default defineConfig({
         name: 'Films — Моя фильмотека',
         short_name: 'Films',
         description: 'Личная база данных фильмов',
-        theme_color: '#0a0a0a',
-        background_color: '#0a0a0a',
+        theme_color: '#E07E38',
+        background_color: '#F5F3F0',
         display: 'standalone',
         start_url: '/',
         icons: [
@@ -32,7 +32,7 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'tmdb-images',
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
         ],

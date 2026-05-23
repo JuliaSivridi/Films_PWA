@@ -1,7 +1,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.75);
+  background: rgba(0,0,0,.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,7 +15,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   width: 100%;
-  max-width: 460px;
+  max-width: 420px;
   box-shadow: var(--shadow);
 }
 
@@ -23,14 +23,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 16px;
+  padding: 18px 20px 14px;
   border-bottom: 1px solid var(--border);
 }
 
-.header h2 { font-size: 1.1rem; font-weight: 600; }
+.header h2 { font-size: 1rem; font-weight: 600; }
 
 .close {
-  width: 32px; height: 32px;
+  width: 30px; height: 30px;
   display: flex; align-items: center; justify-content: center;
   border-radius: var(--radius-sm);
   color: var(--text-2);
@@ -40,7 +40,7 @@
 .close:hover { background: var(--surface-2); color: var(--text); }
 
 .body {
-  padding: 20px 24px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -53,7 +53,7 @@
 }
 
 .field label {
-  font-size: .78rem;
+  font-size: .75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -66,27 +66,57 @@
   line-height: 1.4;
 }
 
+.sheetId {
+  font-size: .8rem;
+  color: var(--text-2);
+}
+
+.sheetId code {
+  font-family: monospace;
+  background: var(--surface-3);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: .75rem;
+}
+
+.resetBtn {
+  padding: 8px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--text);
+  text-align: left;
+  transition: background .15s;
+  width: fit-content;
+}
+
+.resetBtn:hover:not(:disabled) { background: var(--surface-3); }
+.resetBtn:disabled { opacity: .5; }
+
 .footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding: 16px 24px;
+  padding: 14px 20px;
   border-top: 1px solid var(--border);
 }
 
 .cancelBtn {
-  padding: 10px 20px;
+  padding: 9px 18px;
   border-radius: var(--radius);
   background: var(--surface-2);
   border: 1px solid var(--border);
   font-weight: 500;
+  color: var(--text);
   transition: background .15s;
 }
 
 .cancelBtn:hover { background: var(--surface-3); }
 
 .saveBtn {
-  padding: 10px 24px;
+  padding: 9px 22px;
   border-radius: var(--radius);
   background: var(--accent);
   color: #fff;
