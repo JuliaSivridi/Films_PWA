@@ -1,33 +1,7 @@
 // Google Identity Services – client-side OAuth 2.0
 // Token lives in memory only; user profile persisted in localStorage.
-// Pattern mirrors Words_PWA auth.js exactly.
+// Types come from src/google.d.ts (GoogleTokenResponse, GoogleTokenClient, Window.google).
 
-type TokenResponse = {
-  access_token?: string
-  expires_in?: number
-  error?: string
-}
-
-declare global {
-  interface Window {
-    google: {
-      accounts: {
-        oauth2: {
-          initTokenClient(config: {
-            client_id: string
-            scope: string
-            login_hint?: string
-            callback: (r: TokenResponse) => void
-            error_callback?: (e: { type: string }) => void
-          }): { requestAccessToken(opts: { prompt: string }): void }
-          revoke(email: string, done: () => void): void
-        }
-      }
-    }
-  }
-}
-
-// --- scope: email + profile so /userinfo returns picture ---
 const SCOPES = [
   'email',
   'profile',
@@ -92,22 +66,23 @@ async function fetchUserProfile(): Promise<UserProfile | null> {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
     if (!res.ok) return null
-    const d = await res.json()
+    const d = await res.json() as { email: string; name: string; picture: string }
     return { email: d.email, name: d.name, picture: d.picture }
   } catch { return null }
 }
 
 /* ── token client factory ───────────────────────────────────────── */
+// login_hint is passed to requestAccessToken (not initTokenClient config)
+// because google.d.ts only declares it on GoogleTokenClient.requestAccessToken.
 
 function makeTokenClient(
   onSuccess: () => void,
   onError: (type?: string) => void,
-) {
+): GoogleTokenClient {
   return window.google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
-    login_hint: getUser()?.email ?? undefined,
-    callback: async (r: TokenResponse) => {
+    callback: async (r: GoogleTokenResponse) => {
       if (r.error || !r.access_token) {
         onError(r.error)
         return
@@ -115,19 +90,18 @@ function makeTokenClient(
       accessToken = r.access_token
       tokenExpiresAt = Date.now() + (r.expires_in ?? 3600) * 1000
 
-      // Fetch and persist profile on first sign-in (needed for silent re-auth)
+      // Fetch and persist profile on first sign-in (needed for future silent auth)
       if (!getUser()) {
         try {
           const p = await fetchUserProfile()
           if (p) saveUser(p)
-        } catch { /* still usable without profile */ }
+        } catch { /* still usable without picture */ }
       }
 
       notify(true)
       onSuccess()
     },
     error_callback: (err: { type: string }) => {
-      // popup_closed is not an error — user just dismissed
       if (err.type !== 'popup_closed') {
         onError(err.type)
       }
@@ -137,7 +111,7 @@ function makeTokenClient(
 
 /* ── public API ─────────────────────────────────────────────────── */
 
-/** Silent token restore (no UI). Resolves true if token obtained. */
+/** Silent token restore (no UI). Resolves true if successful. */
 export function trySilentSignIn(): Promise<boolean> {
   return new Promise(resolve => {
     if (!window.google?.accounts?.oauth2) { resolve(false); return }
@@ -145,7 +119,7 @@ export function trySilentSignIn(): Promise<boolean> {
       () => resolve(true),
       () => resolve(false),
     )
-    client.requestAccessToken({ prompt: '' })
+    client.requestAccessToken({ prompt: '', login_hint: getUser()?.email })
   })
 }
 
