@@ -86,7 +86,8 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
     const q = state.query.toLowerCase()
     const okQuery = !q ||
       m.title_ru.toLowerCase().includes(q) ||
-      m.title_en.toLowerCase().includes(q)
+      m.title_en.toLowerCase().includes(q) ||
+      (m.genres ?? []).some(g => g.toLowerCase().includes(q))
     return okStatus && okQuery
   })
 

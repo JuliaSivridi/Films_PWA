@@ -8,6 +8,9 @@ export interface Movie {
   status: MovieStatus
   tmdb_id?: string
   poster_path?: string
+  genres?: string[]       // from TMDB at add-time; can be manually edited
+  tmdb_rating?: number    // TMDB vote_average snapshot
+  duration_min?: number   // runtime in minutes (static)
   kinopoisk_url?: string
   imdb_url?: string
   tmdb_url?: string
@@ -23,6 +26,7 @@ export interface TMDBMovie {
   genre_ids: number[]
   poster_path: string | null
   overview: string
+  vote_average: number
 }
 
 export const STATUS_LABELS: Record<MovieStatus, string> = {

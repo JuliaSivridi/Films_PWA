@@ -97,6 +97,12 @@
   letter-spacing: .04em;
 }
 
+.rating {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--want);
+}
+
 .titleRu {
   font-size: .95rem;
   font-weight: 600;
@@ -118,6 +124,14 @@
 .meta {
   font-size: .75rem;
   color: var(--text-3);
+}
+
+.genres {
+  font-size: .72rem;
+  color: var(--text-3);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .links {

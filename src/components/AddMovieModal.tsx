@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Movie, MovieStatus, TMDBMovie } from '../types/movie'
 import { STATUS_LABELS } from '../types/movie'
-import { searchMovies, getPosterUrl, getExternalIds } from '../services/tmdb'
+import { searchMovies, getPosterUrl, getGenres, getMovieDetails } from '../services/tmdb'
 import { lookupFilmByImdbId } from '../services/wikidata'
 import { useMovies } from '../context/MoviesContext'
 import styles from './AddMovieModal.module.css'
@@ -14,6 +14,7 @@ type FormData = Omit<Movie, 'id' | '_row'>
 const BLANK: FormData = {
   title_ru: '', title_en: '', year: 0, status: 'want',
   tmdb_id: undefined, poster_path: undefined,
+  genres: undefined, tmdb_rating: undefined, duration_min: undefined,
   kinopoisk_url: undefined, imdb_url: undefined,
   tmdb_url: undefined, wiki_url: undefined,
 }
@@ -45,7 +46,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
 
   const timerRef      = useRef<ReturnType<typeof setTimeout>>()
   const overlayRef    = useRef<HTMLDivElement>(null)
-  const currentTmdbId = useRef<string | null>(null)   // guard against race conditions
+  const currentTmdbId = useRef<string | null>(null)
 
   /* ── debounced TMDB search ──────────────────────────────────────── */
 
@@ -78,39 +79,59 @@ export default function AddMovieModal({ movie, onClose }: Props) {
     const tmdbId = String(t.id)
     currentTmdbId.current = tmdbId
 
-    // Show form immediately with what TMDB gave us
+    // Show form immediately with what the search result already gave us
     setForm({
-      title_ru:     t.title,
-      title_en:     t.original_title,
+      title_ru:    t.title,
+      title_en:    t.original_title,
       year,
-      status:       form.status,
-      tmdb_id:      tmdbId,
-      poster_path:  t.poster_path || undefined,
-      imdb_url:     undefined,
-      tmdb_url:     `https://www.themoviedb.org/movie/${tmdbId}`,
+      status:      form.status,
+      tmdb_id:     tmdbId,
+      poster_path: t.poster_path || undefined,
+      tmdb_rating: t.vote_average > 0 ? Math.round(t.vote_average * 10) / 10 : undefined,
+      genres:      undefined,       // filled when getGenres resolves
+      duration_min: undefined,      // filled when getMovieDetails resolves
+      imdb_url:    undefined,
+      tmdb_url:    `https://www.themoviedb.org/movie/${tmdbId}`,
       kinopoisk_url: undefined,
-      wiki_url:     undefined,
+      wiki_url:    undefined,
     })
     setPhase('form')
     setLinksLoading(true)
 
-    // Enrich: TMDB external IDs → IMDb URL, then Wikidata → KP + Wikipedia
+    // Enrich in parallel where possible:
+    //   • genres:        getGenres() (likely cached) → map genre_ids
+    //   • details+links: getMovieDetails → runtime + imdb_id
+    //                    then Wikidata (needs imdb_id)
     try {
-      const ext    = await getExternalIds(tmdbId)
-      if (currentTmdbId.current !== tmdbId) return   // user picked another film
+      const [genreMap, details] = await Promise.all([
+        getGenres(),
+        getMovieDetails(tmdbId),
+      ])
+      if (currentTmdbId.current !== tmdbId) return
 
-      const imdbId = ext.imdb_id
-      const links  = imdbId
-        ? await lookupFilmByImdbId(imdbId)
-        : { kinopoisk_url: null, wiki_url: null }
-      if (currentTmdbId.current !== tmdbId) return   // user picked another film
+      const genreNames = t.genre_ids
+        .map(id => genreMap[id])
+        .filter(Boolean) as string[]
+
+      const imdbId = details.imdb_id
 
       setForm(f => ({
         ...f,
-        imdb_url:      imdbId ? `https://www.imdb.com/title/${imdbId}/` : undefined,
-        kinopoisk_url: links.kinopoisk_url || undefined,
-        wiki_url:      links.wiki_url      || undefined,
+        genres:      genreNames.length ? genreNames : undefined,
+        duration_min: details.runtime ?? undefined,
+        imdb_url:    imdbId ? `https://www.imdb.com/title/${imdbId}/` : undefined,
       }))
+
+      // Wikidata is sequential (needs imdb_id)
+      if (imdbId) {
+        const links = await lookupFilmByImdbId(imdbId)
+        if (currentTmdbId.current !== tmdbId) return
+        setForm(f => ({
+          ...f,
+          kinopoisk_url: links.kinopoisk_url || undefined,
+          wiki_url:      links.wiki_url      || undefined,
+        }))
+      }
     } finally {
       if (currentTmdbId.current === tmdbId) setLinksLoading(false)
     }
@@ -213,7 +234,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
           {/* ── FORM PHASE ───────────────────────────────────────── */}
           {phase === 'form' && (
             <>
-              {/* Poster + title fields side by side */}
+              {/* Poster + title fields */}
               <div className={styles.topSection}>
                 {form.poster_path && (
                   <img
@@ -259,6 +280,19 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Genres */}
+              <div className={styles.section}>
+                <p className={styles.label}>Genres</p>
+                <input
+                  value={form.genres?.join(', ') || ''}
+                  onChange={e => {
+                    const v = e.target.value
+                    set('genres', v ? v.split(',').map(g => g.trim()).filter(Boolean) : undefined)
+                  }}
+                  placeholder="Action, Drama…"
+                />
               </div>
 
               {/* Links */}

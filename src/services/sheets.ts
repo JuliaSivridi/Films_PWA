@@ -2,9 +2,10 @@
  * Google Sheets API v4 — CRUD for movies.
  * Gets token via refreshTokenIfNeeded(), sheet ID via getSheetId().
  *
- * Columns A–K (11 total):
+ * Columns A–N (14 total):
  *   id | title_ru | title_en | year | status |
  *   tmdb_id | poster_path |
+ *   genres | tmdb_rating | duration_min |
  *   kinopoisk_url | imdb_url | tmdb_url | wiki_url
  */
 
@@ -17,6 +18,7 @@ const SHEET_NAME  = 'Movies'
 const HEADERS = [
   'id', 'title_ru', 'title_en', 'year', 'status',
   'tmdb_id', 'poster_path',
+  'genres', 'tmdb_rating', 'duration_min',
   'kinopoisk_url', 'imdb_url', 'tmdb_url', 'wiki_url',
 ]
 
@@ -43,17 +45,20 @@ async function api(path: string, method: string, body?: object): Promise<Respons
 
 function rowToMovie(row: string[], rowIndex: number): Movie {
   return {
-    id:             row[0]  || String(rowIndex),
-    title_ru:       row[1]  || '',
-    title_en:       row[2]  || '',
-    year:           parseInt(row[3]) || 0,
-    status:         (row[4] as MovieStatus) || 'want',
-    tmdb_id:        row[5]  || undefined,
-    poster_path:    row[6]  || undefined,
-    kinopoisk_url:  row[7]  || undefined,
-    imdb_url:       row[8]  || undefined,
-    tmdb_url:       row[9]  || undefined,
-    wiki_url:       row[10] || undefined,
+    id:            row[0]  || String(rowIndex),
+    title_ru:      row[1]  || '',
+    title_en:      row[2]  || '',
+    year:          parseInt(row[3]) || 0,
+    status:        (row[4] as MovieStatus) || 'want',
+    tmdb_id:       row[5]  || undefined,
+    poster_path:   row[6]  || undefined,
+    genres:        row[7]  ? (JSON.parse(row[7]) as string[]) : undefined,
+    tmdb_rating:   row[8]  ? parseFloat(row[8]) : undefined,
+    duration_min:  row[9]  ? parseInt(row[9])   : undefined,
+    kinopoisk_url: row[10] || undefined,
+    imdb_url:      row[11] || undefined,
+    tmdb_url:      row[12] || undefined,
+    wiki_url:      row[13] || undefined,
     _row: rowIndex + 2,
   }
 }
@@ -65,12 +70,15 @@ function movieToRow(m: Movie): string[] {
     m.title_en,
     String(m.year),
     m.status,
-    m.tmdb_id        || '',
-    m.poster_path    || '',
-    m.kinopoisk_url  || '',
-    m.imdb_url       || '',
-    m.tmdb_url       || '',
-    m.wiki_url       || '',
+    m.tmdb_id       || '',
+    m.poster_path   || '',
+    m.genres?.length ? JSON.stringify(m.genres) : '',
+    m.tmdb_rating   != null ? String(m.tmdb_rating)  : '',
+    m.duration_min  != null ? String(m.duration_min) : '',
+    m.kinopoisk_url || '',
+    m.imdb_url      || '',
+    m.tmdb_url      || '',
+    m.wiki_url      || '',
   ]
 }
 
@@ -85,7 +93,7 @@ export async function initializeSheet(): Promise<void> {
 
   if (!headData.values || headData.values[0]?.[0] !== 'id') {
     await api(
-      `/values/${SHEET_NAME}!A1:K1?valueInputOption=RAW`,
+      `/values/${SHEET_NAME}!A1:N1?valueInputOption=RAW`,
       'PUT',
       { values: [HEADERS] },
     )
@@ -93,7 +101,7 @@ export async function initializeSheet(): Promise<void> {
 }
 
 export async function fetchMovies(): Promise<Movie[]> {
-  const res  = await api(`/values/${SHEET_NAME}!A:K`, 'GET')
+  const res  = await api(`/values/${SHEET_NAME}!A:N`, 'GET')
   const data = await res.json()
   if (!data.values || data.values.length <= 1) return []
   return (data.values as string[][])
@@ -104,7 +112,7 @@ export async function fetchMovies(): Promise<Movie[]> {
 
 export async function addMovie(movie: Movie): Promise<Movie> {
   const res  = await api(
-    `/values/${SHEET_NAME}!A:K:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+    `/values/${SHEET_NAME}!A:N:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
     'POST',
     { values: [movieToRow(movie)] },
   )
@@ -117,7 +125,7 @@ export async function addMovie(movie: Movie): Promise<Movie> {
 export async function updateMovie(movie: Movie): Promise<void> {
   if (!movie._row) throw new Error('Row number unknown')
   await api(
-    `/values/${SHEET_NAME}!A${movie._row}:K${movie._row}?valueInputOption=RAW`,
+    `/values/${SHEET_NAME}!A${movie._row}:N${movie._row}?valueInputOption=RAW`,
     'PUT',
     { values: [movieToRow(movie)] },
   )

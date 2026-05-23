@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Movie } from '../types/movie'
 import { STATUS_LABELS, STATUS_COLORS } from '../types/movie'
-import { getPosterUrl } from '../services/tmdb'
+import { getPosterUrl, formatDuration } from '../services/tmdb'
 import { useMovies } from '../context/MoviesContext'
 import styles from './MovieCard.module.css'
 
@@ -12,7 +12,7 @@ interface Props {
 
 export default function MovieCard({ movie, onEdit }: Props) {
   const { remove } = useMovies()
-  const [deleting, setDeleting]     = useState(false)
+  const [deleting,   setDeleting]   = useState(false)
   const [confirmDel, setConfirmDel] = useState(false)
 
   const poster = getPosterUrl(movie.poster_path)
@@ -49,6 +49,7 @@ export default function MovieCard({ movie, onEdit }: Props) {
       </div>
 
       <div className={styles.info}>
+        {/* Status + rating row */}
         <div className={styles.statusRow}>
           <span
             className={styles.badge}
@@ -56,14 +57,34 @@ export default function MovieCard({ movie, onEdit }: Props) {
           >
             {STATUS_LABELS[movie.status]}
           </span>
+          {movie.tmdb_rating != null && (
+            <span className={styles.rating}>★ {movie.tmdb_rating}</span>
+          )}
         </div>
+
         <h3 className={styles.titleRu}>{movie.title_ru || movie.title_en}</h3>
+
         {movie.title_en && movie.title_ru && (
           <p className={styles.titleEn}>{movie.title_en}</p>
         )}
-        {movie.year > 0 && (
-          <p className={styles.meta}>{movie.year}</p>
+
+        {/* Year + duration */}
+        {(movie.year > 0 || movie.duration_min) && (
+          <p className={styles.meta}>
+            {movie.year > 0 && movie.year}
+            {movie.year > 0 && movie.duration_min ? ' · ' : ''}
+            {movie.duration_min ? formatDuration(movie.duration_min) : ''}
+          </p>
         )}
+
+        {/* Genres */}
+        {movie.genres && movie.genres.length > 0 && (
+          <p className={styles.genres}>
+            {movie.genres.slice(0, 3).join(' · ')}
+          </p>
+        )}
+
+        {/* External links */}
         {(movie.kinopoisk_url || movie.imdb_url || movie.tmdb_url || movie.wiki_url) && (
           <div className={styles.links}>
             {movie.kinopoisk_url && <a href={movie.kinopoisk_url} target="_blank" rel="noreferrer">KP</a>}
