@@ -1,0 +1,85 @@
+.wrap {
+  position: relative;
+  min-height: calc(100vh - 120px);
+  padding: 24px 20px 80px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 480px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
+
+@media (min-width: 768px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--surface-3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error {
+  color: var(--danger);
+  text-align: center;
+  padding: 20px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 20px;
+  color: var(--text-2);
+}
+
+.addFirst {
+  padding: 10px 20px;
+  background: var(--accent);
+  border-radius: var(--radius);
+  font-weight: 500;
+  color: #fff;
+  transition: background .2s;
+}
+
+.addFirst:hover { background: var(--accent-hover); }
+
+.fab {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(124,58,237,.5);
+  transition: background .2s, transform .2s;
+  z-index: 5;
+}
+
+.fab:hover {
+  background: var(--accent-hover);
+  transform: scale(1.08);
+}

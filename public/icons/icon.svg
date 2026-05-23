@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#1c1c2e"/>
+  <rect x="64" y="160" width="384" height="192" rx="16" fill="#7c3aed"/>
+  <rect x="64" y="160" width="48" height="48" rx="8" fill="#1c1c2e"/>
+  <rect x="64" y="224" width="48" height="48" rx="8" fill="#1c1c2e"/>
+  <rect x="64" y="288" width="48" height="32" rx="8" fill="#1c1c2e"/>
+  <rect x="400" y="160" width="48" height="48" rx="8" fill="#1c1c2e"/>
+  <rect x="400" y="224" width="48" height="48" rx="8" fill="#1c1c2e"/>
+  <rect x="400" y="288" width="48" height="32" rx="8" fill="#1c1c2e"/>
+  <rect x="128" y="176" width="256" height="160" rx="8" fill="#2d1b69"/>
+  <polygon points="220,196 220,316 316,256" fill="#a78bfa"/>
+  <rect x="96" y="128" width="320" height="16" rx="8" fill="#4c1d95"/>
+  <rect x="96" y="368" width="320" height="16" rx="8" fill="#4c1d95"/>
+</svg>
