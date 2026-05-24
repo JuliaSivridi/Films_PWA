@@ -13,7 +13,7 @@ export async function getGenres(): Promise<Record<number, string>> {
   const key = getTmdbKey()
   if (!key) return {}
   try {
-    const res = await fetch(`${BASE}/genre/movie/list?api_key=${key}&language=ru-RU`)
+    const res = await fetch(`${BASE}/genre/movie/list?api_key=${key}&language=en-US`)
     if (!res.ok) return {}
     const data = await res.json()
     genreCache = Object.fromEntries(
