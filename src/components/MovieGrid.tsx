@@ -1,27 +1,14 @@
 import { useState } from 'react'
 import { useMovies } from '../context/MoviesContext'
-import MovieCard from './MovieCard'
 import MovieList from './MovieList'
 import AddMovieModal from './AddMovieModal'
 import type { Movie } from '../types/movie'
 import styles from './MovieGrid.module.css'
 
-type ViewMode = 'list' | 'grid'
-
-function savedView(): ViewMode {
-  return (localStorage.getItem('films_view') as ViewMode) || 'list'
-}
-
 export default function MovieGrid() {
   const { filtered, loading, error } = useMovies()
-  const [editing,  setEditing]  = useState<Movie | null>(null)
-  const [showAdd,  setShowAdd]  = useState(false)
-  const [viewMode, setViewMode] = useState<ViewMode>(savedView)
-
-  function changeView(mode: ViewMode) {
-    setViewMode(mode)
-    localStorage.setItem('films_view', mode)
-  }
+  const [editing, setEditing] = useState<Movie | null>(null)
+  const [showAdd, setShowAdd] = useState(false)
 
   if (loading) return (
     <div className={styles.center}>
@@ -38,27 +25,11 @@ export default function MovieGrid() {
   return (
     <div className={styles.wrap}>
 
-      {/* Toolbar */}
+      {/* Film count */}
       <div className={styles.toolbar}>
         <span className={styles.resultCount}>
           {filtered.length} film{filtered.length !== 1 ? 's' : ''}
         </span>
-        <div className={styles.viewToggle}>
-          <button
-            className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`}
-            onClick={() => changeView('list')}
-            title="List view"
-          >
-            <span className="material-symbols-outlined">format_list_bulleted</span>
-          </button>
-          <button
-            className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.viewBtnActive : ''}`}
-            onClick={() => changeView('grid')}
-            title="Grid view"
-          >
-            <span className="material-symbols-outlined">grid_view</span>
-          </button>
-        </div>
       </div>
 
       {/* Empty state */}
@@ -72,18 +43,9 @@ export default function MovieGrid() {
         </div>
       )}
 
-      {/* List view */}
-      {viewMode === 'list' && filtered.length > 0 && (
+      {/* List */}
+      {filtered.length > 0 && (
         <MovieList movies={filtered} onEdit={setEditing} />
-      )}
-
-      {/* Grid view */}
-      {viewMode === 'grid' && filtered.length > 0 && (
-        <div className={styles.grid}>
-          {filtered.map(m => (
-            <MovieCard key={m.id} movie={m} onEdit={setEditing} />
-          ))}
-        </div>
       )}
 
       {/* FAB */}
@@ -91,8 +53,8 @@ export default function MovieGrid() {
         <span className="material-symbols-outlined">add</span>
       </button>
 
-      {showAdd  && <AddMovieModal                    onClose={() => setShowAdd(false)} />}
-      {editing  && <AddMovieModal movie={editing}    onClose={() => setEditing(null)} />}
+      {showAdd  && <AddMovieModal                 onClose={() => setShowAdd(false)} />}
+      {editing  && <AddMovieModal movie={editing} onClose={() => setEditing(null)} />}
     </div>
   )
 }

@@ -87,7 +87,7 @@
   display: flex;
   align-items: center;
   gap: 0;
-  font-size: .75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -154,14 +154,14 @@
 .tmdbInfo { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 
 .tmdbTitle {
-  font-size: .875rem;
+  font-size: 1rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.tmdbYear { font-size: .75rem; color: var(--text-2); }
+.tmdbYear { font-size: 0.875rem; color: var(--text-2); }
 
 .noResults {
   font-size: .85rem;
@@ -239,10 +239,32 @@
 }
 
 .linkLabel {
-  font-size: .78rem;
+  font-size: .875rem;
   color: var(--text-2);
-  width: 46px;
+  width: 44px;
   flex-shrink: 0;
+}
+
+.openBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: background .15s;
+  text-decoration: none;
+}
+
+.openBtn:hover { background: var(--accent-light); text-decoration: none; }
+.openBtn .material-symbols-outlined { font-size: 18px; }
+
+.openBtnDisabled {
+  color: var(--text-3);
+  pointer-events: none;
+  opacity: .35;
 }
 
 /* Inline spinner next to "Links" label */

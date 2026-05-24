@@ -163,7 +163,7 @@
   gap: 6px;
   padding: 8px 14px;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  font-size: .875rem;
+  font-size: 1rem;
   color: var(--text-2);
   transition: color .15s, background .15s;
   border-bottom: 2px solid transparent;
@@ -180,7 +180,7 @@
   background: var(--surface-3);
   border-radius: 20px;
   padding: 1px 7px;
-  font-size: .72rem;
+  font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
 }
 

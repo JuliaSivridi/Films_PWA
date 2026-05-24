@@ -12,7 +12,7 @@ type Phase    = 'search' | 'form'
 type FormData = Omit<Movie, 'id' | '_row'>
 
 const BLANK: FormData = {
-  title_ru: '', title_orig: '', year: 0, status: 'want',
+  title_ru: '', title_orig: '', year: 0, status: 'watched', // default: Watched
   tmdb_id: undefined, poster_path: undefined,
   genres: undefined, tmdb_rating: undefined, duration_min: undefined,
   kinopoisk_url: undefined, imdb_url: undefined,
@@ -72,24 +72,23 @@ export default function AddMovieModal({ movie, onClose }: Props) {
     setForm(f => ({ ...f, [key]: value || undefined }))
   }
 
-  /* ── TMDB selection — immediate form + background enrichment ──── */
+  /* ── TMDB selection — immediate form + background enrichment ────── */
 
   async function selectTMDB(t: TMDBMovie) {
     const year   = t.release_date ? parseInt(t.release_date.slice(0, 4)) : 0
     const tmdbId = String(t.id)
     currentTmdbId.current = tmdbId
 
-    // Show form immediately with what the search result already gave us
     setForm({
       title_ru:    t.title,
-      title_orig:    t.original_title,
+      title_orig:  t.original_title,
       year,
       status:      form.status,
       tmdb_id:     tmdbId,
       poster_path: t.poster_path || undefined,
       tmdb_rating: t.vote_average > 0 ? Math.round(t.vote_average * 10) / 10 : undefined,
-      genres:      undefined,       // filled when getGenres resolves
-      duration_min: undefined,      // filled when getMovieDetails resolves
+      genres:      undefined,
+      duration_min: undefined,
       imdb_url:    undefined,
       tmdb_url:    `https://www.themoviedb.org/movie/${tmdbId}`,
       kinopoisk_url: undefined,
@@ -98,10 +97,6 @@ export default function AddMovieModal({ movie, onClose }: Props) {
     setPhase('form')
     setLinksLoading(true)
 
-    // Enrich in parallel where possible:
-    //   • genres:        getGenres() (likely cached) → map genre_ids
-    //   • details+links: getMovieDetails → runtime + imdb_id
-    //                    then Wikidata (needs imdb_id)
     try {
       const [genreMap, details] = await Promise.all([
         getGenres(),
@@ -122,7 +117,6 @@ export default function AddMovieModal({ movie, onClose }: Props) {
         imdb_url:    imdbId ? `https://www.imdb.com/title/${imdbId}/` : undefined,
       }))
 
-      // Wikidata is sequential (needs imdb_id)
       if (imdbId) {
         const links = await lookupFilmByImdbId(imdbId)
         if (currentTmdbId.current !== tmdbId) return
@@ -254,12 +248,29 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                     onChange={e => set('title_orig', e.target.value)}
                     placeholder="Original title"
                   />
+                </div>
+              </div>
+
+              {/* Year + Duration row */}
+              <div className={styles.row}>
+                <div className={styles.field}>
+                  <label className={styles.label}>Year</label>
                   <input
                     type="number"
                     min="1895" max="2099"
                     value={form.year || ''}
                     onChange={e => set('year', parseInt(e.target.value) || 0)}
-                    placeholder="Year"
+                    placeholder="2024"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label}>Duration (min)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={form.duration_min || ''}
+                    onChange={e => set('duration_min', parseInt(e.target.value) || undefined)}
+                    placeholder="90"
                   />
                 </div>
               </div>
@@ -315,6 +326,18 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                         onChange={e => setLink(key, e.target.value)}
                         placeholder={placeholder}
                       />
+                      {/* Open link in new tab for quick verification */}
+                      <a
+                        href={form[key] || '#'}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`${styles.openBtn} ${!form[key] ? styles.openBtnDisabled : ''}`}
+                        onClick={e => { if (!form[key]) e.preventDefault() }}
+                        title={form[key] ? `Open ${label}` : 'No URL yet'}
+                        aria-disabled={!form[key]}
+                      >
+                        <span className="material-symbols-outlined">open_in_new</span>
+                      </a>
                     </div>
                   ))}
                 </div>
