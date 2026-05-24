@@ -183,6 +183,14 @@
 
 /* ── FORM PHASE ───────────────────────────────────────────────── */
 
+/* Year + Duration on one row, no labels */
+.yearDurRow {
+  display: flex;
+  gap: 8px;
+}
+
+.yearDurRow input { flex: 1; }
+
 /* Poster + title inputs side by side */
 .topSection {
   display: flex;

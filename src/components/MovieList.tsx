@@ -109,8 +109,8 @@ export default function MovieList({ movies, onEdit }: Props) {
                   }
                 </button>
 
-                {/* Info — tap opens edit */}
-                <button className={styles.info} onClick={() => onEdit(m)}>
+                {/* Info column — tap opens edit; links row stops propagation */}
+                <div className={styles.info} onClick={() => onEdit(m)}>
 
                   {/* Russian title */}
                   <span className={styles.titleRu}>
@@ -139,28 +139,28 @@ export default function MovieList({ movies, onEdit }: Props) {
                       {m.genres.slice(0, 3).join(' · ')}
                     </span>
                   )}
-                </button>
 
-                {/* External links — open directly, don't trigger edit */}
-                {(m.kinopoisk_url || m.imdb_url || m.tmdb_url || m.wiki_url) && (
-                  <div
-                    className={styles.links}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    {m.kinopoisk_url && (
-                      <a href={m.kinopoisk_url} target="_blank" rel="noreferrer" className={styles.link}>KP</a>
-                    )}
-                    {m.imdb_url && (
-                      <a href={m.imdb_url} target="_blank" rel="noreferrer" className={styles.link}>IMDb</a>
-                    )}
-                    {m.tmdb_url && (
-                      <a href={m.tmdb_url} target="_blank" rel="noreferrer" className={styles.link}>TMDB</a>
-                    )}
-                    {m.wiki_url && (
-                      <a href={m.wiki_url} target="_blank" rel="noreferrer" className={styles.link}>Wiki</a>
-                    )}
-                  </div>
-                )}
+                  {/* External links — last row; stop propagation so tapping a link doesn't open edit */}
+                  {(m.kinopoisk_url || m.imdb_url || m.tmdb_url || m.wiki_url) && (
+                    <div
+                      className={styles.links}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      {m.kinopoisk_url && (
+                        <a href={m.kinopoisk_url} target="_blank" rel="noreferrer" className={styles.link}>KP</a>
+                      )}
+                      {m.imdb_url && (
+                        <a href={m.imdb_url} target="_blank" rel="noreferrer" className={styles.link}>IMDb</a>
+                      )}
+                      {m.tmdb_url && (
+                        <a href={m.tmdb_url} target="_blank" rel="noreferrer" className={styles.link}>TMDB</a>
+                      )}
+                      {m.wiki_url && (
+                        <a href={m.wiki_url} target="_blank" rel="noreferrer" className={styles.link}>Wiki</a>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </section>

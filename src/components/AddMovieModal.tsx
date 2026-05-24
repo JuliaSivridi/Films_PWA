@@ -251,28 +251,22 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                 </div>
               </div>
 
-              {/* Year + Duration row */}
-              <div className={styles.row}>
-                <div className={styles.field}>
-                  <label className={styles.label}>Year</label>
-                  <input
-                    type="number"
-                    min="1895" max="2099"
-                    value={form.year || ''}
-                    onChange={e => set('year', parseInt(e.target.value) || 0)}
-                    placeholder="2024"
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label className={styles.label}>Duration (min)</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={form.duration_min || ''}
-                    onChange={e => set('duration_min', parseInt(e.target.value) || undefined)}
-                    placeholder="90"
-                  />
-                </div>
+              {/* Year + Duration — one row, no labels */}
+              <div className={styles.yearDurRow}>
+                <input
+                  type="number"
+                  min="1895" max="2099"
+                  value={form.year || ''}
+                  onChange={e => set('year', parseInt(e.target.value) || 0)}
+                  placeholder="Year"
+                />
+                <input
+                  type="number"
+                  min="1"
+                  value={form.duration_min || ''}
+                  onChange={e => set('duration_min', parseInt(e.target.value) || undefined)}
+                  placeholder="Duration (min)"
+                />
               </div>
 
               {/* Status */}
