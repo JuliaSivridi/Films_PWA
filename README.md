@@ -2,7 +2,7 @@
 
 A personal film library tracker built as a **Progressive Web App**. Runs in any browser and installs on Android/iOS home screens as a standalone app. No backend — Google Sheets is the database.
 
-**Live:** [films.netlify.app](https://films.netlify.app) ← _replace with your URL_
+**Live:** [stler-films.netlify.app](https://stler-films.netlify.app)
 
 ---
 
