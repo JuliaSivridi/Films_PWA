@@ -2,42 +2,31 @@ import { useEffect, useRef, useState } from 'react'
 import { useMovies } from '../context/MoviesContext'
 import { useAuth } from '../context/AuthContext'
 import SettingsModal from './SettingsModal'
-import type { MovieStatus } from '../types/movie'
+import FilterPanel from './FilterPanel'
 import styles from './Header.module.css'
 
-const TABS: { key: MovieStatus | 'all'; label: string }[] = [
-  { key: 'all',     label: 'All' },
-  { key: 'want',    label: 'Want' },
-  { key: 'watched', label: 'Watched' },
-]
-
 export default function Header() {
-  const { query, setQuery, statusFilter, setFilter, movies } = useMovies()
+  const { query, setQuery, activeFilterCount } = useMovies()
   const { user, signOut } = useAuth()
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuOpen,     setMenuOpen]     = useState(false)
+  const [filterOpen,   setFilterOpen]   = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!menuOpen) return
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false)
-      }
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [menuOpen])
 
-  const counts = {
-    all:     movies.length,
-    want:    movies.filter(m => m.status === 'want').length,
-    watched: movies.filter(m => m.status === 'watched').length,
-  }
-
   return (
     <>
       <header className={styles.header}>
+
+        {/* ── top row ─────────────────────────────────────────── */}
         <div className={styles.top}>
           <div className={styles.logo}>
             <img src="/icons/icon.svg" width={26} height={26} alt="" />
@@ -53,6 +42,19 @@ export default function Header() {
               onChange={e => setQuery(e.target.value)}
             />
           </div>
+
+          {/* Filter toggle */}
+          <button
+            className={`${styles.filterBtn} ${filterOpen || activeFilterCount > 0 ? styles.filterBtnActive : ''}`}
+            onClick={() => setFilterOpen(o => !o)}
+            title="Filters"
+            aria-expanded={filterOpen}
+          >
+            <span className="material-symbols-outlined">tune</span>
+            {activeFilterCount > 0 && (
+              <span className={styles.filterBadge}>{activeFilterCount}</span>
+            )}
+          </button>
 
           {/* Avatar + dropdown */}
           <div className={styles.userWrap} ref={menuRef}>
@@ -96,19 +98,9 @@ export default function Header() {
           </div>
         </div>
 
-        <div className={styles.tabs}>
-          {TABS.map(t => (
-            <button
-              key={t.key}
-              className={`${styles.tab} ${statusFilter === t.key ? styles.active : ''}`}
-              onClick={() => setFilter(t.key)}
-              data-status={t.key}
-            >
-              {t.label}
-              <span className={styles.count}>{counts[t.key]}</span>
-            </button>
-          ))}
-        </div>
+        {/* ── filter panel (collapsible) ──────────────────────── */}
+        {filterOpen && <FilterPanel />}
+
       </header>
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}

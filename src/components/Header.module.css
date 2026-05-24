@@ -151,41 +151,43 @@
 .menuSignOut { color: var(--danger); }
 .menuSignOut:hover { background: rgba(239,68,68,.08); }
 
-/* Tabs */
-.tabs {
-  display: flex;
-  gap: 2px;
-}
-
-.tab {
+/* Filter toggle button */
+.filterBtn {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  font-size: 1rem;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
   color: var(--text-2);
-  transition: color .15s, background .15s;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
 }
 
-.tab:hover { color: var(--text); background: var(--surface-2); }
-.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.filterBtn:hover { background: var(--surface-2); color: var(--text); }
 
-.tab[data-status="want"].active     { border-bottom-color: var(--want); }
-.tab[data-status="watched"].active  { border-bottom-color: var(--watched); }
+.filterBtnActive { color: var(--accent); background: var(--accent-light); }
+.filterBtnActive:hover { background: var(--accent-light); }
 
-.count {
-  background: var(--surface-3);
-  border-radius: 20px;
-  padding: 1px 7px;
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
+.filterBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
 }
 
 @media (max-width: 520px) {
   .logo span { display: none; }
-  .tab { padding: 8px 10px; font-size: .8rem; }
-  .count { display: none; }
 }

@@ -1,0 +1,98 @@
+/* ── Filter panel — rendered inside the sticky header ────────── */
+
+.panel {
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Row (label + control) ───────────────────────────────────── */
+
+.filterRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-2);
+  width: 50px;
+  flex-shrink: 0;
+  padding-top: 6px;   /* align with chip centre */
+}
+
+/* ── Status / Genre chips ────────────────────────────────────── */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+}
+
+.chip {
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.chip:hover { border-color: var(--accent); color: var(--text); }
+
+/* Active state — generic (genre chips) */
+.chipActive {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Active state — status-specific colours */
+.chipActive[data-status="want"]    { background: rgba(245,158,11,.15); color: var(--want);    border-color: var(--want);    }
+.chipActive[data-status="watched"] { background: rgba(16,185,129,.15); color: var(--watched); border-color: var(--watched); }
+
+/* ── Year / Rating range inputs ──────────────────────────────── */
+
+.rangeInputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.rangeInputs input {
+  width: 90px;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.dash {
+  color: var(--text-3);
+  flex-shrink: 0;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* ── Clear button ────────────────────────────────────────────── */
+
+.clearBtn {
+  align-self: flex-start;
+  font-size: 0.875rem;
+  color: var(--text-3);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .15s;
+  padding: 0;
+}
+
+.clearBtn:hover { color: var(--danger); }
