@@ -25,13 +25,6 @@ export default function MovieGrid() {
   return (
     <div className={styles.wrap}>
 
-      {/* Film count */}
-      <div className={styles.toolbar}>
-        <span className={styles.resultCount}>
-          {filtered.length} film{filtered.length !== 1 ? 's' : ''}
-        </span>
-      </div>
-
       {/* Empty state */}
       {filtered.length === 0 && (
         <div className={styles.empty}>

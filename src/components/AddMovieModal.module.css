@@ -163,6 +163,20 @@
 
 .tmdbYear { font-size: 0.875rem; color: var(--text-2); }
 
+/* Already-in-collection badge in search results */
+.tmdbBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.tmdbBadge_watched { background: rgba(16,185,129,.15);  color: var(--watched); }
+.tmdbBadge_want    { background: rgba(245,158,11,.15);  color: var(--want);    }
+
 .noResults {
   font-size: .85rem;
   color: var(--text-3);

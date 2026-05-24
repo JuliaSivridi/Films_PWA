@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Movie, MovieStatus, TMDBMovie } from '../types/movie'
 import { STATUS_LABELS } from '../types/movie'
 import { searchMovies, getPosterUrl, getGenres, getMovieDetails } from '../services/tmdb'
@@ -30,11 +30,21 @@ interface Props { movie?: Movie; onClose: () => void }
 /* ── component ────────────────────────────────────────────────────── */
 
 export default function AddMovieModal({ movie, onClose }: Props) {
-  const isEdit = !!movie
-  const { create, edit } = useMovies()
+  const { create, edit, movies } = useMovies()
 
-  const [phase, setPhase]               = useState<Phase>(isEdit ? 'form' : 'search')
+  /* editTarget: the existing Movie being edited (from prop or duplicate found in search) */
+  const [editTarget, setEditTarget] = useState<Movie | null>(movie ?? null)
+  const isEdit = !!editTarget
+
+  const [phase, setPhase]               = useState<Phase>(movie ? 'form' : 'search')
   const [form,  setForm]                = useState<FormData>(movie ? { ...movie } : { ...BLANK })
+
+  /* tmdb_id → Movie lookup for duplicate detection */
+  const tmdbIndex = useMemo(() => {
+    const map: Record<string, Movie> = {}
+    movies.forEach(m => { if (m.tmdb_id) map[m.tmdb_id] = m })
+    return map
+  }, [movies])
   const [linksLoading, setLinksLoading] = useState(false)
 
   const [query,     setQuery]     = useState('')
@@ -70,6 +80,15 @@ export default function AddMovieModal({ movie, onClose }: Props) {
 
   function setLink(key: 'kinopoisk_url' | 'imdb_url' | 'tmdb_url' | 'wiki_url', value: string) {
     setForm(f => ({ ...f, [key]: value || undefined }))
+  }
+
+  /* ── duplicate found in search → switch to edit mode ───────────── */
+
+  function selectDuplicate(existing: Movie) {
+    currentTmdbId.current = null   // cancel any pending enrichment
+    setEditTarget(existing)
+    setForm({ ...existing })
+    setPhase('form')
   }
 
   /* ── TMDB selection — immediate form + background enrichment ────── */
@@ -141,8 +160,8 @@ export default function AddMovieModal({ movie, onClose }: Props) {
     setSaving(true)
     setError('')
     try {
-      if (isEdit && movie) {
-        await edit({ ...movie, ...form })
+      if (isEdit && editTarget) {
+        await edit({ ...editTarget, ...form })
       } else {
         await create({ id: uuid(), ...form })
       }
@@ -195,23 +214,35 @@ export default function AddMovieModal({ movie, onClose }: Props) {
 
               {results.length > 0 && (
                 <div className={styles.tmdbResults}>
-                  {results.map(t => (
-                    <button key={t.id} className={styles.tmdbItem} onClick={() => selectTMDB(t)}>
-                      <img
-                        src={getPosterUrl(t.poster_path, 'w92')}
-                        alt=""
-                        className={styles.tmdbThumb}
-                        onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-                      />
-                      <div className={styles.tmdbInfo}>
-                        <span className={styles.tmdbTitle}>{t.title}</span>
-                        <span className={styles.tmdbYear}>
-                          {t.original_title !== t.title && `${t.original_title} · `}
-                          {t.release_date?.slice(0, 4)}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
+                  {results.map(t => {
+                    const existing = tmdbIndex[String(t.id)]
+                    return (
+                      <button
+                        key={t.id}
+                        className={styles.tmdbItem}
+                        onClick={() => existing ? selectDuplicate(existing) : selectTMDB(t)}
+                      >
+                        <img
+                          src={getPosterUrl(t.poster_path, 'w92')}
+                          alt=""
+                          className={styles.tmdbThumb}
+                          onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                        />
+                        <div className={styles.tmdbInfo}>
+                          <span className={styles.tmdbTitle}>{t.title}</span>
+                          <span className={styles.tmdbYear}>
+                            {t.original_title !== t.title && `${t.original_title} · `}
+                            {t.release_date?.slice(0, 4)}
+                          </span>
+                        </div>
+                        {existing && (
+                          <span className={`${styles.tmdbBadge} ${styles[`tmdbBadge_${existing.status}`]}`}>
+                            ✓ {STATUS_LABELS[existing.status]}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
               )}
 

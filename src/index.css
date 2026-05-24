@@ -46,7 +46,8 @@
   }
 }
 
-html, body, #root { height: 100%; }
+html, body { height: 100%; }
+#root { min-height: 100%; }   /* grow with content so window scrolls → sticky works */
 
 body {
   background: var(--bg);
