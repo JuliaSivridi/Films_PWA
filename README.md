@@ -11,7 +11,7 @@ A personal film library tracker built as a **Progressive Web App**. Runs in any 
 - **Smart Add** — type a title, pick from TMDB search results, and all fields auto-fill: Russian and original title, poster, genres, rating, runtime, and four external links
 - **Auto-enriched links** — Kinopoisk URL and Wikipedia article fetched automatically via Wikidata SPARQL (property P2603); no scraping, no manual copy-paste
 - **Duplicate detection** — films already in your library show a ✓ Watched / ✓ Want badge directly in the TMDB search results; tapping one opens the edit form instead of adding a duplicate
-- **Alphabetical list view** — compact rows with a swipeable index sidebar, designed for collections of 3000+ films
+- **Alphabetical list view** — compact rows with window-level virtual scrolling; only visible rows are rendered so 3000+ films scroll smoothly; tap the logo to open an alphabet popup and jump to any letter instantly
 - **Filter panel** — filter by status (Want / Watched), year range, rating range, and genre multi-select (OR logic); all filters stack
 - **Poster + links on one screen** — each row shows poster, titles, year · duration · rating, genres, and KP / IMDb / TMDB / Wiki link buttons
 - **Light / dark theme** — follows OS preference automatically
@@ -30,6 +30,7 @@ A personal film library tracker built as a **Progressive Web App**. Runs in any 
 | Auth | Google Identity Services (OAuth 2.0) |
 | Movie data | TMDB API v3 |
 | External links | Wikidata SPARQL — Kinopoisk IDs (P2603) + Wikipedia sitelinks |
+| Virtual scrolling | @tanstack/react-virtual v3 (useWindowVirtualizer) |
 | PWA | vite-plugin-pwa (Workbox) |
 | Hosting | Netlify |
 
