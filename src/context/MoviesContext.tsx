@@ -7,19 +7,19 @@ import {
 /* ── filter shape ──────────────────────────────────────────────── */
 
 export interface FiltersState {
-  status:       MovieStatus | 'all'
-  yearFrom:     number | null
-  yearTo:       number | null
-  ratingFrom:   number | null
-  ratingTo:     number | null
-  genreKeyword: string        // substring match on genres OR keywords
+  status:     MovieStatus | 'all'
+  yearFrom:   number | null
+  yearTo:     number | null
+  ratingFrom: number | null
+  ratingTo:   number | null
+  country:    string          // substring match on countries[]
 }
 
 const BLANK_FILTERS: FiltersState = {
   status: 'all',
   yearFrom: null, yearTo: null,
   ratingFrom: null, ratingTo: null,
-  genreKeyword: '',
+  country: '',
 }
 
 /* ── reducer ───────────────────────────────────────────────────── */
@@ -117,12 +117,13 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
     return state.movies.filter(m => {
       // status
       if (filters.status !== 'all' && m.status !== filters.status) return false
-      // text search
+      // text search — title, genres, keywords
       if (query) {
         const q = query.toLowerCase()
         const inTitle = m.title_ru.toLowerCase().includes(q) || m.title_orig.toLowerCase().includes(q)
-        const inGenre = (m.genres ?? []).some(g => g.toLowerCase().includes(q))
-        if (!inTitle && !inGenre) return false
+        const inGenre = (m.genres   ?? []).some(g => g.toLowerCase().includes(q))
+        const inKw    = (m.keywords ?? []).some(k => k.toLowerCase().includes(q))
+        if (!inTitle && !inGenre && !inKw) return false
       }
       // year range
       if (filters.yearFrom != null && m.year < filters.yearFrom) return false
@@ -130,12 +131,10 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
       // rating range (films with no rating are excluded when filter is active)
       if (filters.ratingFrom != null && (m.tmdb_rating == null || m.tmdb_rating < filters.ratingFrom)) return false
       if (filters.ratingTo   != null && (m.tmdb_rating == null || m.tmdb_rating > filters.ratingTo))   return false
-      // genre / keyword — substring match on either field
-      if (filters.genreKeyword) {
-        const q = filters.genreKeyword.toLowerCase()
-        const inGenre = (m.genres   ?? []).some(g => g.toLowerCase().includes(q))
-        const inKw    = (m.keywords ?? []).some(k => k.toLowerCase().includes(q))
-        if (!inGenre && !inKw) return false
+      // country — substring match on countries[]
+      if (filters.country) {
+        const q = filters.country.toLowerCase()
+        if (!(m.countries ?? []).some(c => c.toLowerCase().includes(q))) return false
       }
       return true
     })
@@ -148,7 +147,7 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
     if (f.status !== 'all')                         n++
     if (f.yearFrom   != null || f.yearTo   != null) n++
     if (f.ratingFrom != null || f.ratingTo != null) n++
-    if (f.genreKeyword)                              n++
+    if (f.country)                                   n++
     return n
   }, [state.filters])
 

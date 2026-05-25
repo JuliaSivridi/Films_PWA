@@ -365,18 +365,17 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                 </div>
               )}
 
-              {/* Genres — editable */}
-              <div className={styles.section}>
-                <p className={styles.label}>Genres</p>
-                <input
-                  value={form.genres?.join(', ') || ''}
-                  onChange={e => {
-                    const v = e.target.value
-                    set('genres', v ? v.split(',').map(g => g.trim()).filter(Boolean) : undefined)
-                  }}
-                  placeholder="Action, Drama…"
-                />
-              </div>
+              {/* Genres — read-only chips */}
+              {form.genres && form.genres.length > 0 && (
+                <div className={styles.section}>
+                  <p className={styles.label}>Genres</p>
+                  <div className={styles.tagChips}>
+                    {form.genres.map(g => (
+                      <span key={g} className={styles.tagChip}>{g}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Keywords — read-only chips */}
               {form.keywords && form.keywords.length > 0 && (

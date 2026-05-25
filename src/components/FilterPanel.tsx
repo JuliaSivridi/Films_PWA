@@ -76,15 +76,15 @@ export default function FilterPanel() {
         </div>
       </div>
 
-      {/* Genre / Keyword ─────────────────────────────────────── */}
+      {/* Country ─────────────────────────────────────────────── */}
       <div className={styles.filterRow}>
-        <span className={styles.filterLabel}>Genre / Keyword</span>
+        <span className={styles.filterLabel}>Country</span>
         <input
           className={styles.kwInput}
           type="search"
-          placeholder="fairy tale, drama…"
-          value={filters.genreKeyword}
-          onChange={e => setFilters({ genreKeyword: e.target.value })}
+          placeholder="France, Russia…"
+          value={filters.country}
+          onChange={e => setFilters({ country: e.target.value })}
         />
       </div>
 

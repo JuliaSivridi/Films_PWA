@@ -1,0 +1,161 @@
+/* ── Page shell ─────────────────────────────────────────────────── */
+
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+/* ── Title row ──────────────────────────────────────────────────── */
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.backBtn:hover { background: var(--surface-2); color: var(--text); }
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.filmCount {
+  font-size: .875rem;
+  color: var(--text-3);
+  margin-left: 2px;
+}
+
+/* ── Dimension selector ─────────────────────────────────────────── */
+
+.dimRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+
+.dimBtn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: .875rem;
+  font-weight: 500;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  transition: all .15s;
+}
+.dimBtn:hover { border-color: var(--accent); color: var(--text); }
+
+.dimBtnActive {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+/* ── Chart + legend layout ──────────────────────────────────────── */
+
+.chartWrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+
+/* ── SVG donut ──────────────────────────────────────────────────── */
+
+.svg {
+  width: 280px;
+  height: 280px;
+  flex-shrink: 0;
+}
+
+.svgTotal {
+  text-anchor: middle;
+  font-size: 2rem;
+  font-weight: 700;
+  fill: var(--text);
+  font-family: inherit;
+}
+
+.svgLabel {
+  text-anchor: middle;
+  font-size: .8rem;
+  fill: var(--text-3);
+  font-family: inherit;
+}
+
+/* ── Legend ─────────────────────────────────────────────────────── */
+
+.legend {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 10px;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  flex: 1;
+  font-size: .9rem;
+  color: var(--text);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.legendCount {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text-2);
+  min-width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+
+.empty {
+  color: var(--text-3);
+  font-size: .9rem;
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────── */
+
+@media (max-width: 520px) {
+  .chartWrap { justify-content: center; }
+  .svg { width: 240px; height: 240px; }
+}

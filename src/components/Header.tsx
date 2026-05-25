@@ -5,9 +5,9 @@ import SettingsModal from './SettingsModal'
 import FilterPanel from './FilterPanel'
 import styles from './Header.module.css'
 
-interface Props { onLogoClick: () => void }
+interface Props { onLogoClick: () => void; onStatsClick: () => void }
 
-export default function Header({ onLogoClick }: Props) {
+export default function Header({ onLogoClick, onStatsClick }: Props) {
   const { query, setQuery, activeFilterCount } = useMovies()
   const { user, signOut } = useAuth()
   const [menuOpen,     setMenuOpen]     = useState(false)
@@ -39,7 +39,7 @@ export default function Header({ onLogoClick }: Props) {
             <span className={`material-symbols-outlined ${styles.searchIcon}`}>search</span>
             <input
               type="search"
-              placeholder="Search by title or genre…"
+              placeholder="Search by title, genre, keyword…"
               value={query}
               onChange={e => setQuery(e.target.value)}
             />
@@ -78,6 +78,14 @@ export default function Header({ onLogoClick }: Props) {
                   <span className={styles.menuEmail}>{user?.email}</span>
                 </div>
                 <div className={styles.menuDivider} />
+                <button
+                  className={styles.menuItem}
+                  role="menuitem"
+                  onClick={() => { setMenuOpen(false); onStatsClick() }}
+                >
+                  <span className="material-symbols-outlined">bar_chart</span>
+                  Statistics
+                </button>
                 <button
                   className={styles.menuItem}
                   role="menuitem"
