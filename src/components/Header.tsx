@@ -5,7 +5,9 @@ import SettingsModal from './SettingsModal'
 import FilterPanel from './FilterPanel'
 import styles from './Header.module.css'
 
-export default function Header() {
+interface Props { onLogoClick: () => void }
+
+export default function Header({ onLogoClick }: Props) {
   const { query, setQuery, activeFilterCount } = useMovies()
   const { user, signOut } = useAuth()
   const [menuOpen,     setMenuOpen]     = useState(false)
@@ -28,10 +30,10 @@ export default function Header() {
 
         {/* ── top row ─────────────────────────────────────────── */}
         <div className={styles.top}>
-          <div className={styles.logo}>
+          <button className={styles.logo} onClick={onLogoClick} title="Jump to letter">
             <img src="/icons/icon.svg" width={26} height={26} alt="" />
             <span>Films</span>
-          </div>
+          </button>
 
           <div className={styles.search}>
             <span className={`material-symbols-outlined ${styles.searchIcon}`}>search</span>

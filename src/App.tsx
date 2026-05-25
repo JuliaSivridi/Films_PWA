@@ -15,11 +15,12 @@ type Phase = 'loading' | 'login' | 'ready'
 
 function MainContent() {
   const { load } = useMovies()
+  const [alphaOpen, setAlphaOpen] = useState(false)
   useEffect(() => { load() }, [load])
   return (
     <>
-      <Header />
-      <MovieGrid />
+      <Header onLogoClick={() => setAlphaOpen(o => !o)} />
+      <MovieGrid alphaOpen={alphaOpen} onAlphaClose={() => setAlphaOpen(false)} />
     </>
   )
 }

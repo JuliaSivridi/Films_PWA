@@ -5,7 +5,9 @@ import AddMovieModal from './AddMovieModal'
 import type { Movie } from '../types/movie'
 import styles from './MovieGrid.module.css'
 
-export default function MovieGrid() {
+interface Props { alphaOpen: boolean; onAlphaClose: () => void }
+
+export default function MovieGrid({ alphaOpen, onAlphaClose }: Props) {
   const { filtered, loading, error } = useMovies()
   const [editing, setEditing] = useState<Movie | null>(null)
   const [showAdd, setShowAdd] = useState(false)
@@ -38,7 +40,7 @@ export default function MovieGrid() {
 
       {/* List */}
       {filtered.length > 0 && (
-        <MovieList movies={filtered} onEdit={setEditing} />
+        <MovieList movies={filtered} onEdit={setEditing} alphaOpen={alphaOpen} onAlphaClose={onAlphaClose} />
       )}
 
       {/* FAB */}

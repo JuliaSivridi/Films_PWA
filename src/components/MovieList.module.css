@@ -1,14 +1,8 @@
 /* ─────────────────────────────────────────────────────────────────
-   MovieList — accessible, scalable font sizes (min 1rem / 16px).
+   MovieList — virtual-scrolled compact list.
+   Uses @tanstack/react-virtual (useWindowVirtualizer).
    All font sizes in rem so they respect OS/browser size settings.
    ───────────────────────────────────────────────────────────────── */
-
-/* ── Layout ────────────────────────────────────────────────────── */
-
-.wrap {
-  position: relative;
-  padding-right: 32px; /* room for alphabet sidebar */
-}
 
 /* ── Letter divider ────────────────────────────────────────────── */
 
@@ -177,41 +171,3 @@
   text-decoration: none;
 }
 
-/* ── Alphabet index sidebar ────────────────────────────────────── */
-
-.alphaNav {
-  position: fixed;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4px 0;
-  z-index: 20;
-  user-select: none;
-  touch-action: none;
-  max-height: 80vh;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-
-.alphaNav::-webkit-scrollbar { display: none; }
-
-.alphaBtn {
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1;
-  width: 32px;
-  padding: 3px 0;
-  color: var(--accent);
-  text-align: center;
-  border-radius: 3px;
-  transition: background .1s;
-  pointer-events: auto;
-}
-
-.alphaBtn:hover,
-.alphaBtn:active {
-  background: var(--accent-light);
-}

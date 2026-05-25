@@ -25,7 +25,12 @@
   white-space: nowrap;
   flex-shrink: 0;
   color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  margin-left: -6px;
+  transition: background .15s;
 }
+.logo:hover { background: var(--surface-2); }
 
 /* Search */
 .search {
