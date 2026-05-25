@@ -15,6 +15,8 @@ export interface Movie {
   imdb_url?: string
   tmdb_url?: string
   wiki_url?: string
+  countries?: string[]     // production countries (e.g. ["France", "Italy"])
+  keywords?:  string[]     // TMDB keywords (e.g. ["fairy tale", "based on novel"])
   _row?: number
 }
 

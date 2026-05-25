@@ -17,6 +17,7 @@ const BLANK: FormData = {
   genres: undefined, tmdb_rating: undefined, duration_min: undefined,
   kinopoisk_url: undefined, imdb_url: undefined,
   tmdb_url: undefined, wiki_url: undefined,
+  countries: undefined, keywords: undefined,
 }
 
 function uuid() {
@@ -131,9 +132,11 @@ export default function AddMovieModal({ movie, onClose }: Props) {
 
       setForm(f => ({
         ...f,
-        genres:      genreNames.length ? genreNames : undefined,
-        duration_min: details.runtime ?? undefined,
-        imdb_url:    imdbId ? `https://www.imdb.com/title/${imdbId}/` : undefined,
+        genres:       genreNames.length    ? genreNames         : undefined,
+        duration_min: details.runtime      ?? undefined,
+        countries:    details.countries.length ? details.countries : undefined,
+        keywords:     details.keywords.length  ? details.keywords  : undefined,
+        imdb_url:     imdbId ? `https://www.imdb.com/title/${imdbId}/` : undefined,
       }))
 
       if (imdbId) {
@@ -328,6 +331,34 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                     set('genres', v ? v.split(',').map(g => g.trim()).filter(Boolean) : undefined)
                   }}
                   placeholder="Action, Drama…"
+                />
+              </div>
+
+              {/* Countries */}
+              <div className={styles.section}>
+                <p className={styles.label}>Countries</p>
+                <input
+                  value={form.countries?.join(', ') || ''}
+                  onChange={e => {
+                    const v = e.target.value
+                    set('countries', v ? v.split(',').map(c => c.trim()).filter(Boolean) : undefined)
+                  }}
+                  placeholder="France, Italy…"
+                />
+              </div>
+
+              {/* Keywords */}
+              <div className={styles.section}>
+                <p className={styles.label}>Keywords</p>
+                <textarea
+                  className={styles.keywords}
+                  value={form.keywords?.join(', ') || ''}
+                  onChange={e => {
+                    const v = e.target.value
+                    set('keywords', v ? v.split(',').map(k => k.trim()).filter(Boolean) : undefined)
+                  }}
+                  placeholder="fairy tale, based on novel…"
+                  rows={3}
                 />
               </div>
 

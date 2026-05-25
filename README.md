@@ -114,6 +114,8 @@ All data lives in the user's **db_films** Google Spreadsheet, found or created a
 | L | imdb_url | IMDb title page |
 | M | tmdb_url | TMDB movie page |
 | N | wiki_url | Wikipedia article (Russian preferred, English fallback) |
+| O | countries | JSON array of production countries — e.g. `["France","Italy"]` |
+| P | keywords | JSON array of TMDB keywords — e.g. `["fairy tale","based on novel"]` |
 
 ---
 
@@ -129,7 +131,7 @@ python enrich_films.py --api-key YOUR_TMDB_KEY --input films.csv --output films_
 The script:
 - Extracts the IMDb ID from each `imdb_url` and calls `GET /find/{imdb_id}?external_source=imdb_id`
 - Falls back to title search for rows without an IMDb link
-- Fills `tmdb_id`, `poster_path`, `tmdb_rating`, `tmdb_url`
+- Fills `tmdb_id`, `poster_path`, `tmdb_rating`, `tmdb_url`, `countries`, `keywords`
 - Converts genres from `"Action, Drama"` to `["Action","Drama"]`
 - Generates a UUID for each `id`
 - Saves a checkpoint every 100 rows — rerun against the output file to resume after interruption

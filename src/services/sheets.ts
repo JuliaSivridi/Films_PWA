@@ -2,11 +2,12 @@
  * Google Sheets API v4 — CRUD for movies.
  * Gets token via refreshTokenIfNeeded(), sheet ID via getSheetId().
  *
- * Columns A–N (14 total):
+ * Columns A–P (16 total):
  *   id | title_ru | title_orig | year | status |
  *   tmdb_id | poster_path |
  *   genres | tmdb_rating | duration_min |
- *   kinopoisk_url | imdb_url | tmdb_url | wiki_url
+ *   kinopoisk_url | imdb_url | tmdb_url | wiki_url |
+ *   countries | keywords
  */
 
 import type { Movie, MovieStatus } from '../types/movie'
@@ -20,6 +21,7 @@ const HEADERS = [
   'tmdb_id', 'poster_path',
   'genres', 'tmdb_rating', 'duration_min',
   'kinopoisk_url', 'imdb_url', 'tmdb_url', 'wiki_url',
+  'countries', 'keywords',
 ]
 
 async function api(path: string, method: string, body?: object): Promise<Response> {
@@ -59,6 +61,8 @@ function rowToMovie(row: string[], rowIndex: number): Movie {
     imdb_url:      row[11] || undefined,
     tmdb_url:      row[12] || undefined,
     wiki_url:      row[13] || undefined,
+    countries:     row[14] ? (JSON.parse(row[14]) as string[]) : undefined,
+    keywords:      row[15] ? (JSON.parse(row[15]) as string[]) : undefined,
     _row: rowIndex + 2,
   }
 }
@@ -79,6 +83,8 @@ function movieToRow(m: Movie): string[] {
     m.imdb_url      || '',
     m.tmdb_url      || '',
     m.wiki_url      || '',
+    m.countries?.length ? JSON.stringify(m.countries) : '',
+    m.keywords?.length  ? JSON.stringify(m.keywords)  : '',
   ]
 }
 
@@ -93,7 +99,7 @@ export async function initializeSheet(): Promise<void> {
 
   if (!headData.values || headData.values[0]?.[0] !== 'id') {
     await api(
-      `/values/${SHEET_NAME}!A1:N1?valueInputOption=RAW`,
+      `/values/${SHEET_NAME}!A1:P1?valueInputOption=RAW`,
       'PUT',
       { values: [HEADERS] },
     )
@@ -101,7 +107,7 @@ export async function initializeSheet(): Promise<void> {
 }
 
 export async function fetchMovies(): Promise<Movie[]> {
-  const res  = await api(`/values/${SHEET_NAME}!A:N`, 'GET')
+  const res  = await api(`/values/${SHEET_NAME}!A:P`, 'GET')
   const data = await res.json()
   if (!data.values || data.values.length <= 1) return []
   return (data.values as string[][])
@@ -112,7 +118,7 @@ export async function fetchMovies(): Promise<Movie[]> {
 
 export async function addMovie(movie: Movie): Promise<Movie> {
   const res  = await api(
-    `/values/${SHEET_NAME}!A:N:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+    `/values/${SHEET_NAME}!A:P:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
     'POST',
     { values: [movieToRow(movie)] },
   )
@@ -125,7 +131,7 @@ export async function addMovie(movie: Movie): Promise<Movie> {
 export async function updateMovie(movie: Movie): Promise<void> {
   if (!movie._row) throw new Error('Row number unknown')
   await api(
-    `/values/${SHEET_NAME}!A${movie._row}:N${movie._row}?valueInputOption=RAW`,
+    `/values/${SHEET_NAME}!A${movie._row}:P${movie._row}?valueInputOption=RAW`,
     'PUT',
     { values: [movieToRow(movie)] },
   )

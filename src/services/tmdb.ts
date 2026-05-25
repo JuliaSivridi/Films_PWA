@@ -37,32 +37,39 @@ export async function searchMovies(query: string): Promise<TMDBMovie[]> {
 }
 
 export interface MovieDetails {
-  runtime: number | null
-  imdb_id: string | null
+  runtime:   number | null
+  imdb_id:   string | null
+  countries: string[]       // production_countries[].name
+  keywords:  string[]       // keywords.keywords[].name
 }
 
 /**
- * Fetch movie runtime and IMDb ID in a single request
+ * Fetch runtime, IMDb ID, production countries, and keywords in one request
  * using TMDB's append_to_response feature.
  */
 export async function getMovieDetails(tmdbId: string): Promise<MovieDetails> {
   const key = getTmdbKey()
-  if (!key) return { runtime: null, imdb_id: null }
+  const empty: MovieDetails = { runtime: null, imdb_id: null, countries: [], keywords: [] }
+  if (!key) return empty
   try {
     const res = await fetch(
-      `${BASE}/movie/${tmdbId}?api_key=${key}&append_to_response=external_ids`,
+      `${BASE}/movie/${tmdbId}?api_key=${key}&append_to_response=external_ids,keywords`,
     )
-    if (!res.ok) return { runtime: null, imdb_id: null }
+    if (!res.ok) return empty
     const data = await res.json() as {
-      runtime?: number | null
-      external_ids?: { imdb_id?: string | null }
+      runtime?:              number | null
+      external_ids?:         { imdb_id?: string | null }
+      production_countries?: { iso_3166_1: string; name: string }[]
+      keywords?:             { keywords: { id: number; name: string }[] }
     }
     return {
-      runtime:  (typeof data.runtime === 'number' && data.runtime > 0) ? data.runtime : null,
-      imdb_id:  data.external_ids?.imdb_id || null,
+      runtime:   (typeof data.runtime === 'number' && data.runtime > 0) ? data.runtime : null,
+      imdb_id:   data.external_ids?.imdb_id || null,
+      countries: data.production_countries?.map(c => c.name) ?? [],
+      keywords:  data.keywords?.keywords?.map(k => k.name)  ?? [],
     }
   } catch {
-    return { runtime: null, imdb_id: null }
+    return empty
   }
 }
 

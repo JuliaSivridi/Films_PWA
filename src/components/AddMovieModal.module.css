@@ -305,6 +305,27 @@
 
 @keyframes spinInline { to { transform: rotate(360deg); } }
 
+/* Keywords textarea */
+.keywords {
+  width: 100%;
+  resize: vertical;
+  min-height: 64px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  transition: border-color .15s;
+}
+
+.keywords:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 /* ── Footer buttons ───────────────────────────────────────────── */
 
 .cancelBtn {
