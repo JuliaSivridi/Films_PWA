@@ -22,7 +22,7 @@
   text-transform: uppercase;
   letter-spacing: .06em;
   color: var(--text-2);
-  width: 50px;
+  width: 72px;
   flex-shrink: 0;
   padding-top: 6px;   /* align with chip centre */
 }
@@ -60,6 +60,14 @@
 /* Active state — status-specific colours */
 .chipActive[data-status="want"]    { background: rgba(245,158,11,.15); color: var(--want);    border-color: var(--want);    }
 .chipActive[data-status="watched"] { background: rgba(16,185,129,.15); color: var(--watched); border-color: var(--watched); }
+
+/* ── Genre / Keyword text input ──────────────────────────────── */
+
+.kwInput {
+  flex: 1;
+  font-size: 1rem;
+  height: 34px;
+}
 
 /* ── Year / Rating range inputs ──────────────────────────────── */
 

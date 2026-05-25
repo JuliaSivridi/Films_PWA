@@ -10,7 +10,7 @@ const STATUS_OPTIONS: { key: MovieStatus | 'all'; label: string }[] = [
 ]
 
 export default function FilterPanel() {
-  const { filters, setFilters, clearFilters, allGenres, activeFilterCount } = useMovies()
+  const { filters, setFilters, clearFilters, activeFilterCount } = useMovies()
 
   return (
     <div className={styles.panel}>
@@ -76,30 +76,17 @@ export default function FilterPanel() {
         </div>
       </div>
 
-      {/* Genres ──────────────────────────────────────────────── */}
-      {allGenres.length > 0 && (
-        <div className={styles.filterRow}>
-          <span className={styles.filterLabel}>Genres</span>
-          <div className={styles.chips}>
-            {allGenres.map(g => {
-              const active = filters.genres.includes(g)
-              return (
-                <button
-                  key={g}
-                  className={`${styles.chip} ${active ? styles.chipActive : ''}`}
-                  onClick={() => setFilters({
-                    genres: active
-                      ? filters.genres.filter(x => x !== g)
-                      : [...filters.genres, g],
-                  })}
-                >
-                  {g}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      {/* Genre / Keyword ─────────────────────────────────────── */}
+      <div className={styles.filterRow}>
+        <span className={styles.filterLabel}>Genre / Keyword</span>
+        <input
+          className={styles.kwInput}
+          type="search"
+          placeholder="fairy tale, drama…"
+          value={filters.genreKeyword}
+          onChange={e => setFilters({ genreKeyword: e.target.value })}
+        />
+      </div>
 
       {/* Clear ───────────────────────────────────────────────── */}
       {activeFilterCount > 0 && (

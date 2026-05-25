@@ -305,25 +305,28 @@
 
 @keyframes spinInline { to { transform: rotate(360deg); } }
 
-/* Keywords textarea */
-.keywords {
-  width: 100%;
-  resize: vertical;
-  min-height: 64px;
-  font-family: inherit;
+/* Read-only country text */
+.readOnlyText {
   font-size: 0.9rem;
+  color: var(--text-2);
   line-height: 1.5;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text);
-  transition: border-color .15s;
 }
 
-.keywords:focus {
-  outline: none;
-  border-color: var(--accent);
+/* Read-only keyword chips */
+.tagChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tagChip {
+  font-size: 0.775rem;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  white-space: nowrap;
 }
 
 /* ── Footer buttons ───────────────────────────────────────────── */

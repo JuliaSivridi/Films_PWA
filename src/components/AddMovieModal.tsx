@@ -321,48 +321,7 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                 </div>
               </div>
 
-              {/* Genres */}
-              <div className={styles.section}>
-                <p className={styles.label}>Genres</p>
-                <input
-                  value={form.genres?.join(', ') || ''}
-                  onChange={e => {
-                    const v = e.target.value
-                    set('genres', v ? v.split(',').map(g => g.trim()).filter(Boolean) : undefined)
-                  }}
-                  placeholder="Action, Drama…"
-                />
-              </div>
-
-              {/* Countries */}
-              <div className={styles.section}>
-                <p className={styles.label}>Countries</p>
-                <input
-                  value={form.countries?.join(', ') || ''}
-                  onChange={e => {
-                    const v = e.target.value
-                    set('countries', v ? v.split(',').map(c => c.trim()).filter(Boolean) : undefined)
-                  }}
-                  placeholder="France, Italy…"
-                />
-              </div>
-
-              {/* Keywords */}
-              <div className={styles.section}>
-                <p className={styles.label}>Keywords</p>
-                <textarea
-                  className={styles.keywords}
-                  value={form.keywords?.join(', ') || ''}
-                  onChange={e => {
-                    const v = e.target.value
-                    set('keywords', v ? v.split(',').map(k => k.trim()).filter(Boolean) : undefined)
-                  }}
-                  placeholder="fairy tale, based on novel…"
-                  rows={3}
-                />
-              </div>
-
-              {/* Links */}
+              {/* Links — shown first, most-used */}
               <div className={styles.section}>
                 <p className={styles.label}>
                   Links
@@ -382,7 +341,6 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                         onChange={e => setLink(key, e.target.value)}
                         placeholder={placeholder}
                       />
-                      {/* Open link in new tab for quick verification */}
                       <a
                         href={form[key] || '#'}
                         target="_blank"
@@ -398,6 +356,39 @@ export default function AddMovieModal({ movie, onClose }: Props) {
                   ))}
                 </div>
               </div>
+
+              {/* Countries — read-only */}
+              {form.countries && form.countries.length > 0 && (
+                <div className={styles.section}>
+                  <p className={styles.label}>Countries</p>
+                  <p className={styles.readOnlyText}>{form.countries.join(' · ')}</p>
+                </div>
+              )}
+
+              {/* Genres — editable */}
+              <div className={styles.section}>
+                <p className={styles.label}>Genres</p>
+                <input
+                  value={form.genres?.join(', ') || ''}
+                  onChange={e => {
+                    const v = e.target.value
+                    set('genres', v ? v.split(',').map(g => g.trim()).filter(Boolean) : undefined)
+                  }}
+                  placeholder="Action, Drama…"
+                />
+              </div>
+
+              {/* Keywords — read-only chips */}
+              {form.keywords && form.keywords.length > 0 && (
+                <div className={styles.section}>
+                  <p className={styles.label}>Keywords</p>
+                  <div className={styles.tagChips}>
+                    {form.keywords.map(kw => (
+                      <span key={kw} className={styles.tagChip}>{kw}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
 

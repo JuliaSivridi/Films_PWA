@@ -7,19 +7,19 @@ import {
 /* ── filter shape ──────────────────────────────────────────────── */
 
 export interface FiltersState {
-  status:     MovieStatus | 'all'
-  yearFrom:   number | null
-  yearTo:     number | null
-  ratingFrom: number | null
-  ratingTo:   number | null
-  genres:     string[]      // OR logic: film must have ≥1 of selected
+  status:       MovieStatus | 'all'
+  yearFrom:     number | null
+  yearTo:       number | null
+  ratingFrom:   number | null
+  ratingTo:     number | null
+  genreKeyword: string        // substring match on genres OR keywords
 }
 
 const BLANK_FILTERS: FiltersState = {
   status: 'all',
   yearFrom: null, yearTo: null,
   ratingFrom: null, ratingTo: null,
-  genres: [],
+  genreKeyword: '',
 }
 
 /* ── reducer ───────────────────────────────────────────────────── */
@@ -62,7 +62,6 @@ function reducer(s: State, a: Action): State {
 
 interface Ctx extends State {
   filtered:          Movie[]
-  allGenres:         string[]
   activeFilterCount: number
   load:         () => Promise<void>
   create:       (m: Movie) => Promise<void>
@@ -112,13 +111,6 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
   const setFilters   = useCallback((f: Partial<FiltersState>) => dispatch({ type: 'SET_FILTERS', payload: f }), [])
   const clearFilters = useCallback(() => dispatch({ type: 'CLEAR_FILTERS' }), [])
 
-  /* all unique genres from the collection, sorted */
-  const allGenres = useMemo(() => {
-    const set = new Set<string>()
-    state.movies.forEach(m => m.genres?.forEach(g => set.add(g)))
-    return [...set].sort((a, b) => a.localeCompare(b, 'ru'))
-  }, [state.movies])
-
   /* filtered list */
   const filtered = useMemo(() => {
     const { filters, query } = state
@@ -138,10 +130,12 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
       // rating range (films with no rating are excluded when filter is active)
       if (filters.ratingFrom != null && (m.tmdb_rating == null || m.tmdb_rating < filters.ratingFrom)) return false
       if (filters.ratingTo   != null && (m.tmdb_rating == null || m.tmdb_rating > filters.ratingTo))   return false
-      // genres — OR logic
-      if (filters.genres.length > 0) {
-        const mg = new Set((m.genres ?? []).map(g => g.toLowerCase()))
-        if (!filters.genres.some(g => mg.has(g.toLowerCase()))) return false
+      // genre / keyword — substring match on either field
+      if (filters.genreKeyword) {
+        const q = filters.genreKeyword.toLowerCase()
+        const inGenre = (m.genres   ?? []).some(g => g.toLowerCase().includes(q))
+        const inKw    = (m.keywords ?? []).some(k => k.toLowerCase().includes(q))
+        if (!inGenre && !inKw) return false
       }
       return true
     })
@@ -154,13 +148,13 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
     if (f.status !== 'all')                         n++
     if (f.yearFrom   != null || f.yearTo   != null) n++
     if (f.ratingFrom != null || f.ratingTo != null) n++
-    if (f.genres.length > 0)                        n++
+    if (f.genreKeyword)                              n++
     return n
   }, [state.filters])
 
   return (
     <MoviesCtx.Provider value={{
-      ...state, filtered, allGenres, activeFilterCount,
+      ...state, filtered, activeFilterCount,
       load, create, edit, remove, setQuery, setFilters, clearFilters,
     }}>
       {children}

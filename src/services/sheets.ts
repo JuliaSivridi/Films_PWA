@@ -45,24 +45,35 @@ async function api(path: string, method: string, body?: object): Promise<Respons
   return res
 }
 
+function parseArr(raw: string | undefined): string[] | undefined {
+  if (!raw) return undefined
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : undefined
+  } catch {
+    // cell contains plain comma-separated text or truncated JSON — ignore silently
+    return undefined
+  }
+}
+
 function rowToMovie(row: string[], rowIndex: number): Movie {
   return {
     id:            row[0]  || String(rowIndex),
     title_ru:      row[1]  || '',
-    title_orig:      row[2]  || '',
+    title_orig:    row[2]  || '',
     year:          parseInt(row[3]) || 0,
     status:        (row[4] as MovieStatus) || 'want',
     tmdb_id:       row[5]  || undefined,
     poster_path:   row[6]  || undefined,
-    genres:        row[7]  ? (JSON.parse(row[7]) as string[]) : undefined,
+    genres:        parseArr(row[7]),
     tmdb_rating:   row[8]  ? parseFloat(row[8]) : undefined,
     duration_min:  row[9]  ? parseInt(row[9])   : undefined,
     kinopoisk_url: row[10] || undefined,
     imdb_url:      row[11] || undefined,
     tmdb_url:      row[12] || undefined,
     wiki_url:      row[13] || undefined,
-    countries:     row[14] ? (JSON.parse(row[14]) as string[]) : undefined,
-    keywords:      row[15] ? (JSON.parse(row[15]) as string[]) : undefined,
+    countries:     parseArr(row[14]),
+    keywords:      parseArr(row[15]),
     _row: rowIndex + 2,
   }
 }

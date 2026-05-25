@@ -196,9 +196,9 @@ export default function MovieList({ movies, onEdit, alphaOpen, onAlphaClose }: P
                         </span>
                       )}
 
-                      {m.genres && m.genres.length > 0 && (
+                      {m.countries && m.countries.length > 0 && (
                         <span className={styles.genres}>
-                          {m.genres.slice(0, 3).join(' · ')}
+                          {m.countries.join(' · ')}
                         </span>
                       )}
 
