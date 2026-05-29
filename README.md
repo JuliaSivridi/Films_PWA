@@ -1,21 +1,23 @@
 # Films
 
-A personal film library tracker built as a **Progressive Web App**. Runs in any browser and installs on Android/iOS home screens as a standalone app. No backend — Google Sheets is the database.
+A personal film library tracker built as a **Progressive Web App**. Runs in any browser and installs on Android/iOS/desktop as a standalone app. No backend — Google Sheets is the database.
 
-**Live:** [stler-films.netlify.app](https://stler-films.netlify.app)
+**Live:** [juliasivridi.github.io/Films_PWA](https://juliasivridi.github.io/Films_PWA/)
 
 ---
 
 ## Features
 
-- **Smart Add** — type a title, pick from TMDB search results, and all fields auto-fill: Russian and original title, poster, genres, rating, runtime, and four external links
+- **Smart Add** — type a title, pick from TMDB search results, and all fields auto-fill: Russian and original title, poster, genres, rating, runtime, countries, keywords, and four external links
 - **Auto-enriched links** — Kinopoisk URL and Wikipedia article fetched automatically via Wikidata SPARQL (property P2603); no scraping, no manual copy-paste
 - **Duplicate detection** — films already in your library show a ✓ Watched / ✓ Want badge directly in the TMDB search results; tapping one opens the edit form instead of adding a duplicate
 - **Alphabetical list view** — compact rows with window-level virtual scrolling; only visible rows are rendered so 3000+ films scroll smoothly; tap the logo to open an alphabet popup and jump to any letter instantly
-- **Filter panel** — filter by status (Want / Watched), year range, rating range, and genre multi-select (OR logic); all filters stack
-- **Poster + links on one screen** — each row shows poster, titles, year · duration · rating, genres, and KP / IMDb / TMDB / Wiki link buttons
+- **Status dot** — a 16×16 colour-coded circle (green = Watched, amber = Want) overlaid on each poster
+- **Unified search** — the top search bar searches title, genres, and keywords simultaneously
+- **Filter panel** — filter by status (Want / Watched), year range, rating range, and country; all filters stack
+- **Statistics page** — SVG donut chart showing collection breakdown by decade, rating bucket, country, or genre; accessible from the avatar menu
 - **Light / dark theme** — follows OS preference automatically
-- **PWA** — installable on Android and iOS, works as a standalone app with its own icon
+- **PWA** — installable on Android, iOS, and desktop; PNG icons generated automatically in CI
 
 ---
 
@@ -31,8 +33,8 @@ A personal film library tracker built as a **Progressive Web App**. Runs in any 
 | Movie data | TMDB API v3 |
 | External links | Wikidata SPARQL — Kinopoisk IDs (P2603) + Wikipedia sitelinks |
 | Virtual scrolling | @tanstack/react-virtual v3 (useWindowVirtualizer) |
-| PWA | vite-plugin-pwa (Workbox) |
-| Hosting | Netlify |
+| PWA | vite-plugin-pwa (Workbox) + PNG icons generated in CI via rsvg-convert |
+| Hosting | GitHub Pages (auto-deploy via GitHub Actions on push to `main`) |
 
 ---
 
@@ -44,7 +46,7 @@ A personal film library tracker built as a **Progressive Web App**. Runs in any 
 - Google Cloud project with **Google Sheets API v4** and **Google Drive API** enabled
 - OAuth 2.0 Client ID (type: Web application)
 - [TMDB API key](https://www.themoviedb.org/settings/api) (free, v3 key)
-- Node.js ≥ 18
+- Node.js ≥ 18 (for local development only)
 
 ### Google Cloud Console
 
@@ -54,7 +56,7 @@ A personal film library tracker built as a **Progressive Web App**. Runs in any 
 4. Add to **Authorized JavaScript origins** (not Redirect URIs):
    ```
    http://localhost:5173
-   https://your-app.netlify.app
+   https://juliasivridi.github.io
    ```
 5. Add your Google account as a **test user** in the OAuth consent screen
 
@@ -78,25 +80,21 @@ npm run build  # production build → dist/
 
 The TMDB API key is entered inside the app on first launch (Settings → TMDB API Key) and stored in `localStorage` — it never leaves the browser.
 
-### Deploy to Netlify
+### Deploy to GitHub Pages
 
-1. Import the repository at [app.netlify.com](https://app.netlify.com)
-2. Add environment variable in Site Settings → Environment Variables:
-   - `VITE_GOOGLE_CLIENT_ID`
-3. Add a `netlify.toml` at the project root for SPA routing:
-   ```toml
-   [[redirects]]
-   from = "/*"
-   to = "/index.html"
-   status = 200
-   ```
-4. Every push to `main` triggers automatic deployment
+1. Fork or push the repository to GitHub
+2. Go to **Settings → Pages → Source** and select **GitHub Actions**
+3. Add a repository secret under **Settings → Secrets and variables → Actions**:
+   - `VITE_GOOGLE_CLIENT_ID` — your Google OAuth2 client ID
+4. Every push to `main` triggers automatic build and deployment via `.github/workflows/deploy.yml`
+
+The workflow installs dependencies, generates `icon-192.png` and `icon-512.png` from the SVG source using `rsvg-convert`, then builds and deploys to GitHub Pages.
 
 ---
 
 ## Data Model
 
-All data lives in the user's **db_films** Google Spreadsheet, found or created automatically on first login. A single sheet (default name: Films) stores one film per row.
+All data lives in the user's **db_films** Google Spreadsheet, found or created automatically on first login. A single sheet (default name: Movies) stores one film per row.
 
 | Col | Field | Description |
 |-----|-------|-------------|
@@ -116,6 +114,8 @@ All data lives in the user's **db_films** Google Spreadsheet, found or created a
 | N | wiki_url | Wikipedia article (Russian preferred, English fallback) |
 | O | countries | JSON array of production countries — e.g. `["France","Italy"]` |
 | P | keywords | JSON array of TMDB keywords — e.g. `["fairy tale","based on novel"]` |
+
+Array fields are stored as JSON strings. Malformed cells are silently ignored via a `parseArr()` try/catch wrapper rather than crashing the list.
 
 ---
 
@@ -140,8 +140,10 @@ After enrichment, import `films_enriched.csv` into Google Sheets (File → Impor
 
 ---
 
-## Install as Mobile App
+## Install as App
 
-**Android:** Chrome prompts automatically, or use the browser menu → *Install app*
+**Android / Chrome:** the address bar shows an install icon, or use the browser menu → *Install app*
 
-**iOS:** Safari → Share button → *Add to Home Screen*
+**iOS / Safari:** Share button → *Add to Home Screen*
+
+**Desktop / Chrome:** install icon in the address bar

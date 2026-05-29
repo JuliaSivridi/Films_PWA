@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Films PWA — Technical Specification v1.1</title>
+  <style>
+  @page { margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #1a1a1a;
+    background: #fff;
+    padding: 0;
+  }
+
+  /* Cover page */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px 72px;
+    background: #1c1c1c;
+    color: #fff;
+    page-break-after: always;
+  }
+  .cover .logo {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .cover .logo span { color: #e07e38; }
+  .cover .subtitle {
+    font-size: 18px;
+    color: #a1a1aa;
+    margin-bottom: 40px;
+  }
+  .cover .meta { font-size: 13px; color: #71717a; line-height: 2; }
+  .cover .meta strong { color: #d4d4d8; }
+  .cover .accent-line {
+    width: 60px;
+    height: 4px;
+    background: #e07e38;
+    border-radius: 2px;
+    margin-bottom: 32px;
+  }
+  .cover .inspiration {
+    margin-top: 48px;
+    padding: 16px 20px;
+    border: 1px solid #2a2a2a;
+    border-left: 3px solid #e07e38;
+    border-radius: 6px;
+    background: #222;
+    font-size: 12px;
+    color: #a1a1aa;
+    max-width: 480px;
+  }
+  .cover .inspiration strong { color: #e4e4e7; }
+
+  /* Content pages */
+  .content {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 56px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1c1c1c;
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e07e38;
+    page-break-before: always;
+  }
+  h1:first-child { page-break-before: avoid; margin-top: 0; }
+
+  h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1c1c1c;
+    margin-top: 32px;
+    margin-bottom: 10px;
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-top: 20px;
+    margin-bottom: 6px;
+  }
+
+  p { margin-bottom: 12px; }
+
+  a { color: #e07e38; text-decoration: none; }
+
+  ul, ol {
+    margin: 8px 0 12px 22px;
+  }
+  li { margin-bottom: 4px; }
+
+  code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+    background: #f4f4f5;
+    border: 1px solid #e4e4e7;
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #d97706;
+  }
+
+  pre {
+    background: #1c1c1c;
+    color: #e4e4e7;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0 16px;
+    overflow-x: auto;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px;
+    font-size: 12.5px;
+  }
+  th {
+    background: #f4f4f5;
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border: 1px solid #e4e4e7;
+    color: #374151;
+  }
+  td {
+    padding: 7px 12px;
+    border: 1px solid #e4e4e7;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+    margin-right: 4px;
+  }
+
+  .callout {
+    background: #fff7ed;
+    border-left: 3px solid #e07e38;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-size: 12.5px;
+  }
+
+  .note {
+    background: #f0f9ff;
+    border-left: 3px solid #0ea5e9;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-size: 12.5px;
+  }
+
+  .dir-tree {
+    background: #1c1c1c;
+    color: #e4e4e7;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0 16px;
+    font-family: 'Consolas', monospace;
+    font-size: 11.5px;
+    line-height: 1.8;
+  }
+  .dir-tree .dim { color: #71717a; }
+  .dir-tree .orange { color: #fb923c; }
+  .dir-tree .green { color: #86efac; }
+  .dir-tree .blue { color: #93c5fd; }
+
+  .toc {
+    background: #fafafa;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 24px 0 32px;
+  }
+  .toc h2 { margin-top: 0; margin-bottom: 12px; font-size: 15px; }
+  .toc ol { margin: 0; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc li a { color: #374151; }
+  .toc li a:hover { color: #e07e38; }
+
+  @media print {
+    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ COVER ═══════════════════════════════════════ -->
+<div class="cover">
+  <div class="logo">Films<span>.</span></div>
+  <div class="subtitle">Personal Movie Collection PWA</div>
+  <div class="accent-line"></div>
+  <div class="meta">
+    <strong>Document:</strong> Technical Specification v1.1<br>
+    <strong>Date:</strong> May 2026<br>
+    <strong>Repository:</strong> JuliaSivridi/Films_PWA<br>
+    <strong>Live:</strong> <a href="https://juliasivridi.github.io/Films_PWA/" style="color:#fb923c;">juliasivridi.github.io/Films_PWA</a><br>
+    <strong>Deploy:</strong> GitHub Pages via GitHub Actions (push to <code style="background:none;border:none;color:#fb923c;">main</code>)
+  </div>
+  <div class="inspiration">
+    <strong>Architecture in one sentence:</strong><br>
+    React 18 + TypeScript + Vite SPA with no backend — Google Sheets as the database,
+    Google Identity Services for auth, TMDB for metadata, Wikidata for extra links.
+    Virtual-scrolled list of 3 000+ films, SVG donut stats, no routing library, no chart library.
+    PNG icons generated from SVG in CI via <code style="background:none;border:none;color:#fb923c;">rsvg-convert</code>.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ CONTENT ══════════════════════════════════════ -->
+<div class="content">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#s1">Overview</a></li>
+      <li><a href="#s2">Technology Stack</a></li>
+      <li><a href="#s3">Project Structure</a></li>
+      <li><a href="#s4">Data Model</a></li>
+      <li><a href="#s5">External APIs</a></li>
+      <li><a href="#s6">Services Layer</a></li>
+      <li><a href="#s7">State Management</a></li>
+      <li><a href="#s8">Component Architecture</a></li>
+      <li><a href="#s9">Navigation &amp; Routing</a></li>
+      <li><a href="#s10">Styling System</a></li>
+      <li><a href="#s11">Build &amp; Deployment</a></li>
+      <li><a href="#s12">Key Algorithms</a></li>
+    </ol>
+  </div>
+
+  <!-- ─── 1. Overview ─────────────────────────────────────────────────────── -->
+  <h1 id="s1">1. Overview</h1>
+
+  <p>Films PWA is a personal movie-collection manager. The user authenticates with Google OAuth 2.0; their film data lives in a private Google Spreadsheet with no custom backend required.</p>
+
+  <h2>Key Design Decisions</h2>
+  <ul>
+    <li><strong>No backend server.</strong> All persistence goes directly to Google Sheets API v4.</li>
+    <li><strong>No routing library.</strong> Navigation is React state: <code>view: 'list' | 'stats'</code>.</li>
+    <li><strong>No chart library.</strong> The statistics donut is rendered with raw SVG path math.</li>
+    <li><strong>No CSS-in-JS.</strong> Styles live in per-component CSS Modules plus global custom properties.</li>
+    <li><strong>Virtual scrolling</strong> for the movie list (3 000+ films) via <code>@tanstack/react-virtual</code>.</li>
+    <li><strong>CI-generated PNG icons</strong> — <code>rsvg-convert</code> converts the SVG source to 192 and 512 px PNG in the GitHub Actions workflow before Vite build runs.</li>
+  </ul>
+
+  <!-- ─── 2. Technology Stack ─────────────────────────────────────────────── -->
+  <h1 id="s2">2. Technology Stack</h1>
+
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Choice</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Framework</td><td>React 18</td><td>Strict Mode in <code>main.tsx</code></td></tr>
+      <tr><td>Language</td><td>TypeScript 5</td><td>Strict, <code>moduleResolution: bundler</code></td></tr>
+      <tr><td>Build tool</td><td>Vite 5</td><td><code>@vitejs/plugin-react</code></td></tr>
+      <tr><td>Styling</td><td>CSS Modules + custom properties</td><td>Light/dark via <code>prefers-color-scheme</code></td></tr>
+      <tr><td>Virtual scroll</td><td><code>@tanstack/react-virtual</code> v3</td><td><code>useWindowVirtualizer</code></td></tr>
+      <tr><td>Icons</td><td>Material Symbols Outlined</td><td>Google Fonts CDN</td></tr>
+      <tr><td>Auth</td><td>Google Identity Services</td><td>Token in memory; profile in <code>localStorage</code></td></tr>
+      <tr><td>Database</td><td>Google Sheets API v4</td><td>One spreadsheet, one <code>Movies</code> sheet</td></tr>
+      <tr><td>Movie metadata</td><td>TMDB API v3</td><td>Search, details, genres, keywords</td></tr>
+      <tr><td>Extra links</td><td>Wikidata SPARQL</td><td>Kinopoisk URL + Wikipedia link</td></tr>
+      <tr><td>PWA</td><td>vite-plugin-pwa (Workbox)</td><td>PNG icons generated in CI</td></tr>
+      <tr><td>Hosting</td><td>GitHub Pages</td><td>Auto-deploy via GitHub Actions on push to <code>main</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 3. Project Structure ────────────────────────────────────────────── -->
+  <h1 id="s3">3. Project Structure</h1>
+
+  <div class="dir-tree">
+    <span class="orange">Films_PWA/</span><br>
+    ├── <span class="dim">.github/workflows/</span><br>
+    │&nbsp;&nbsp; └── <span class="green">deploy.yml</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># GitHub Actions: build + deploy</span><br>
+    ├── <span class="dim">public/icons/</span><br>
+    │&nbsp;&nbsp; ├── <span class="green">icon.svg</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># Source icon (orange bg, white outline+play)</span><br>
+    │&nbsp;&nbsp; ├── <span class="dim">icon-192.png</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># Generated in CI (not committed)</span><br>
+    │&nbsp;&nbsp; └── <span class="dim">icon-512.png</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># Generated in CI (not committed)</span><br>
+    ├── <span class="dim">src/</span><br>
+    │&nbsp;&nbsp; ├── <span class="blue">main.tsx</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># ReactDOM.createRoot, StrictMode</span><br>
+    │&nbsp;&nbsp; ├── <span class="blue">App.tsx</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># Root: auth phases, view routing</span><br>
+    │&nbsp;&nbsp; ├── <span class="blue">index.css</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># Global variables, resets</span><br>
+    │&nbsp;&nbsp; ├── <span class="dim">types/movie.ts</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># Movie interface, MovieStatus, STATUS_COLORS</span><br>
+    │&nbsp;&nbsp; ├── <span class="dim">context/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># AuthContext, MoviesContext (useReducer)</span><br>
+    │&nbsp;&nbsp; ├── <span class="dim">services/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># auth, drive, sheets, tmdb, wikidata</span><br>
+    │&nbsp;&nbsp; └── <span class="dim">components/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># LoginPage, Header, FilterPanel, MovieGrid,</span><br>
+    │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># MovieList, AlphaPicker, AddMovieModal,</span><br>
+    │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># SettingsModal, StatsPage + .module.css each</span><br>
+    ├── <span class="dim">docs/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"># tech-spec.md + tech-spec.html</span><br>
+    ├── <span class="blue">vite.config.ts</span><br>
+    └── <span class="blue">package.json</span>
+  </div>
+
+  <!-- ─── 4. Data Model ───────────────────────────────────────────────────── -->
+  <h1 id="s4">4. Data Model</h1>
+
+  <h2>4.1 Movie Interface</h2>
+  <pre><code>export type MovieStatus = 'want' | 'watched'
+
+export interface Movie {
+  id:            string           // UUID
+  title_ru:      string           // Russian title
+  title_orig:    string           // Original title
+  year:          number           // Release year (0 if unknown)
+  status:        MovieStatus
+  tmdb_id?:      string
+  poster_path?:  string           // TMDB path, e.g. "/abc123.jpg"
+  genres?:       string[]         // ["Drama", "Thriller"]
+  tmdb_rating?:  number           // rounded to 1 decimal
+  duration_min?: number
+  kinopoisk_url?: string
+  imdb_url?:     string
+  tmdb_url?:     string
+  wiki_url?:     string
+  countries?:    string[]         // ["France", "Italy"]
+  keywords?:     string[]         // ["fairy tale", "based on novel"]
+  _row?:         number           // 1-based Sheets row (runtime only)
+}
+
+export const STATUS_COLORS: Record&lt;MovieStatus, string&gt; = {
+  want: '#f59e0b', watched: '#10b981'
+}</code></pre>
+
+  <h2>4.2 Google Sheets Layout — Columns A–P</h2>
+  <table>
+    <thead><tr><th>#</th><th>Col</th><th>Field</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>A</td><td><code>id</code></td><td>UUID string</td></tr>
+      <tr><td>2</td><td>B</td><td><code>title_ru</code></td><td>Russian title</td></tr>
+      <tr><td>3</td><td>C</td><td><code>title_orig</code></td><td>Original title</td></tr>
+      <tr><td>4</td><td>D</td><td><code>year</code></td><td>Integer string</td></tr>
+      <tr><td>5</td><td>E</td><td><code>status</code></td><td><code>want</code> or <code>watched</code></td></tr>
+      <tr><td>6</td><td>F</td><td><code>tmdb_id</code></td><td>Numeric string</td></tr>
+      <tr><td>7</td><td>G</td><td><code>poster_path</code></td><td>TMDB path</td></tr>
+      <tr><td>8</td><td>H</td><td><code>genres</code></td><td>JSON array string</td></tr>
+      <tr><td>9</td><td>I</td><td><code>tmdb_rating</code></td><td>Float string</td></tr>
+      <tr><td>10</td><td>J</td><td><code>duration_min</code></td><td>Integer string</td></tr>
+      <tr><td>11</td><td>K</td><td><code>kinopoisk_url</code></td><td>URL</td></tr>
+      <tr><td>12</td><td>L</td><td><code>imdb_url</code></td><td>URL</td></tr>
+      <tr><td>13</td><td>M</td><td><code>tmdb_url</code></td><td>URL</td></tr>
+      <tr><td>14</td><td>N</td><td><code>wiki_url</code></td><td>URL</td></tr>
+      <tr><td>15</td><td>O</td><td><code>countries</code></td><td>JSON array string</td></tr>
+      <tr><td>16</td><td>P</td><td><code>keywords</code></td><td>JSON array string</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">Array fields are stored as JSON strings. <code>parseArr()</code> wraps <code>JSON.parse</code> in a try/catch — malformed cells return <code>undefined</code> silently.</div>
+
+  <!-- ─── 5. External APIs ────────────────────────────────────────────────── -->
+  <h1 id="s5">5. External APIs</h1>
+
+  <h2>5.1 Google Identity Services</h2>
+  <p>OAuth 2.0 implicit flow. Token in memory. Scopes: <code>email profile spreadsheets drive.metadata.readonly</code>. <code>CLIENT_ID</code> from <code>VITE_GOOGLE_CLIENT_ID</code> env var.</p>
+
+  <h2>5.2 Google Sheets API v4</h2>
+  <table>
+    <thead><tr><th>Operation</th><th>Method</th><th>Endpoint</th></tr></thead>
+    <tbody>
+      <tr><td>Read all rows</td><td>GET</td><td><code>/{id}/values/Movies!A:P</code></td></tr>
+      <tr><td>Append row</td><td>POST</td><td><code>/{id}/values/Movies!A:P:append</code></td></tr>
+      <tr><td>Update row</td><td>PUT</td><td><code>/{id}/values/Movies!A{row}:P{row}</code></td></tr>
+      <tr><td>Delete row</td><td>POST</td><td><code>/{id}:batchUpdate</code> deleteDimension</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5.3 TMDB API v3</h2>
+  <table>
+    <thead><tr><th>Endpoint</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>GET /search/movie?query=…&amp;language=ru-RU</code></td><td>Title search (max 8 results)</td></tr>
+      <tr><td><code>GET /movie/{id}?append_to_response=external_ids,keywords</code></td><td>Runtime, IMDb ID, countries, keywords</td></tr>
+      <tr><td><code>GET /genre/movie/list?language=en-US</code></td><td>Genre ID → name (memory cache)</td></tr>
+      <tr><td><code>https://image.tmdb.org/t/p/{size}{path}</code></td><td>Poster images</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5.4 Wikidata SPARQL</h2>
+  <p>Lookup by IMDb ID (<code>P345</code>) → Kinopoisk ID (<code>P2603</code>) + Wikipedia sitelinks (RU preferred, EN fallback).</p>
+
+  <!-- ─── 6. Services Layer ───────────────────────────────────────────────── -->
+  <h1 id="s6">6. Services Layer</h1>
+
+  <h2>6.1 auth.ts — Token Lifecycle</h2>
+  <pre><code>initAuth(clientId)     → if profile saved → trySilentSignIn()
+trySilentSignIn()      → prompt:'', login_hint; sets tokenExpiresAt
+signIn()               → prompt:'consent'
+refreshTokenIfNeeded() → if Date.now() > tokenExpiresAt − 30_000 → silent refresh
+                         called at the top of every Sheets/Drive request</code></pre>
+
+  <h2>6.2 sheets.ts — parseArr + rowToMovie</h2>
+  <pre><code>function parseArr(raw?: string): string[] | undefined {
+  if (!raw) return undefined
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : undefined
+  } catch { return undefined }
+}
+
+// rowToMovie maps 16-column string array → Movie object
+// _row = rowIndex + 2  (0-index offset + header row)</code></pre>
+
+  <h2>6.3 drive.ts</h2>
+  <p><code>findOrCreateFilmsFile()</code>: checks <code>localStorage</code> cache → searches Drive → creates spreadsheet if missing. <code>listUserSheets()</code>: Drive files list for the Settings picker.</p>
+
+  <h2>6.4 tmdb.ts</h2>
+  <ul>
+    <li><code>searchMovies(q)</code> — up to 8 results, language <code>ru-RU</code></li>
+    <li><code>getMovieDetails(id)</code> — <code>append_to_response=external_ids,keywords</code></li>
+    <li><code>getGenres()</code> — fetches once, module-level cache</li>
+    <li><code>getPosterUrl(path, size)</code> — TMDB image CDN</li>
+    <li><code>formatDuration(min)</code> — <code>"1h 45m"</code></li>
+  </ul>
+
+  <!-- ─── 7. State Management ─────────────────────────────────────────────── -->
+  <h1 id="s7">7. State Management</h1>
+
+  <h2>7.1 MoviesContext — useReducer</h2>
+  <pre><code>interface FiltersState {
+  status:     MovieStatus | 'all'
+  yearFrom:   number | null
+  yearTo:     number | null
+  ratingFrom: number | null
+  ratingTo:   number | null
+  country:    string          // substring match
+}</code></pre>
+
+  <h3>Reducer actions</h3>
+  <table>
+    <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>LOADING</code></td><td><code>loading = true</code></td></tr>
+      <tr><td><code>SET</code></td><td>Replace <code>movies[]</code>, <code>loading = false</code></td></tr>
+      <tr><td><code>ADD / UPDATE / DELETE</code></td><td>Mutate <code>movies[]</code> by id</td></tr>
+      <tr><td><code>QUERY</code></td><td>Update search string</td></tr>
+      <tr><td><code>SET_FILTERS / CLEAR_FILTERS</code></td><td>Merge or reset <code>FiltersState</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Unified search (title + genres + keywords)</h3>
+  <pre><code>movie.title_ru.toLowerCase().includes(q)
+|| movie.title_orig.toLowerCase().includes(q)
+|| movie.genres?.some(g  =&gt; g.toLowerCase().includes(q))
+|| movie.keywords?.some(k =&gt; k.toLowerCase().includes(q))</code></pre>
+
+  <p><strong>activeFilterCount</strong> (0–4): +1 for status ≠ <code>'all'</code>, +1 for year range, +1 for rating range, +1 for non-empty country.</p>
+
+  <!-- ─── 8. Component Architecture ──────────────────────────────────────── -->
+  <h1 id="s8">8. Component Architecture</h1>
+
+  <h2>8.1 Component Tree</h2>
+  <div class="dir-tree">
+    App → AuthProvider → MoviesProvider → AppInner<br>
+    &nbsp;&nbsp;├── [loading] → <span class="orange">splash</span><br>
+    &nbsp;&nbsp;├── [login]   → <span class="orange">LoginPage</span><br>
+    &nbsp;&nbsp;└── [ready]   → MainContent<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="blue">Header</span> (FilterPanel · SettingsModal)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── [list]  → <span class="blue">MovieGrid</span> → MovieList (AlphaPicker) · AddMovieModal<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── [stats] → <span class="orange">StatsPage</span>
+  </div>
+
+  <h2>8.2 Header</h2>
+  <p>Logo (26×26 SVG + "Films"), unified search input (title+genres+keywords), filter toggle badge, avatar dropdown (Statistics → Settings → Sign out). <code>ResizeObserver</code> on <code>&lt;header&gt;</code> → <code>scrollMargin</code> for virtual scroll.</p>
+
+  <h2>8.3 FilterPanel</h2>
+  <p>Status chips · Year range · Rating range · Country substring. "Clear all filters" when <code>activeFilterCount &gt; 0</code>.</p>
+
+  <h2>8.4 MovieList</h2>
+  <p>Sorted (<code>localeCompare('ru')</code>), grouped into letter dividers + rows. Cyrillic → A–Z → <code>#</code>.</p>
+  <pre><code>useWindowVirtualizer({
+  estimateSize: i =&gt; items[i].type === 'divider' ? 42 : 157,
+  overscan: 5,
+  scrollMargin: headerHeight,
+})</code></pre>
+
+  <p><strong>Row content:</strong> poster (90×135 px) · titles · year/duration/★rating · countries · KP/IMDb/TMDB/Wiki links.</p>
+
+  <div class="callout">
+    <strong>Status dot:</strong> 16×16 px circle, <code>position: absolute</code> bottom-right of the poster button.
+    Colour from <code>STATUS_COLORS[m.status]</code> — green (<code>#10b981</code>) for Watched, amber (<code>#f59e0b</code>) for Want.
+    <code>border: 2px solid var(--surface)</code> separates it visually from the poster.
+  </div>
+
+  <h2>8.5 AddMovieModal</h2>
+  <p>Two-phase (<code>'search'</code> → <code>'form'</code>). Background enrichment: genres, runtime, countries, keywords, IMDb ID, KP/Wiki fetched concurrently after TMDB pick; <code>currentTmdbId</code> ref discards stale results. Form order: Poster+Titles → Year/Duration → Status → Links → Countries → Genres → Keywords.</p>
+
+  <h2>8.6 StatsPage</h2>
+  <p>Dimensions: Decade · Rating · Country · Genre. <code>computeSlices()</code> returns <code>{ slices, uniqueCount }</code>.</p>
+
+  <table>
+    <thead><tr><th>Dimension</th><th>Source</th><th>Grouping</th></tr></thead>
+    <tbody>
+      <tr><td>Decade</td><td><code>year</code></td><td><code>Math.floor(year/10)*10 + 's'</code></td></tr>
+      <tr><td>Rating</td><td><code>tmdb_rating</code></td><td><code>Math.floor(rating) + '.x'</code></td></tr>
+      <tr><td>Country</td><td><code>countries[]</code></td><td>Each element separately</td></tr>
+      <tr><td>Genre</td><td><code>genres[]</code></td><td>Each element separately</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>uniqueCount vs. slice sum:</strong> The donut centre shows <em>uniqueCount</em> — films that had at least one valid value for the dimension — not the sum of all slice counts, which is inflated for multi-value fields (a film with 3 genres contributes 3 to the sum but only 1 to uniqueCount).
+  </div>
+
+  <p><strong>SVG donut:</strong> <code>viewBox="0 0 280 280"</code>, cx=140, cy=140, R=125, r=68, start angle −π/2. Top 15 slices + Others bucket (<code>#94a3b8</code>).</p>
+
+  <h2>8.7 SettingsModal</h2>
+  <p>TMDB key (password input → <code>localStorage</code>); spreadsheet picker (<code>listUserSheets()</code> → <code>&lt;select&gt;</code>).</p>
+
+  <!-- ─── 9. Navigation ───────────────────────────────────────────────────── -->
+  <h1 id="s9">9. Navigation &amp; Routing</h1>
+
+  <p>No React Router. Pure state transitions:</p>
+  <table>
+    <thead><tr><th>From</th><th>Event</th><th>To</th></tr></thead>
+    <tbody>
+      <tr><td>any</td><td>App load</td><td><code>loading</code></td></tr>
+      <tr><td>loading</td><td>Not authenticated</td><td><code>login</code></td></tr>
+      <tr><td>loading</td><td>Auth OK + Drive file ready</td><td><code>ready → list</code></td></tr>
+      <tr><td>list</td><td>"Statistics" in user menu</td><td><code>stats</code></td></tr>
+      <tr><td>stats</td><td>Back button or logo click</td><td><code>list</code></td></tr>
+      <tr><td>list</td><td>Logo click</td><td>AlphaPicker toggle</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 10. Styling ─────────────────────────────────────────────────────── -->
+  <h1 id="s10">10. Styling System</h1>
+
+  <h2>10.1 CSS Custom Properties</h2>
+  <h3>Light theme</h3>
+  <pre><code>--bg: #F5F3F0;   --surface: #FFFFFF;   --surface-2: #F0EDE8;
+--border: #DDD9D2;
+--text: #1C1C1C; --text-2: #6B6B6B;    --text-3: #A0A0A0;
+--accent: #E07E38; --accent-hover: #C96E2F;
+--want: #f59e0b; --watched: #10b981;</code></pre>
+
+  <h3>Dark theme (<code>@media (prefers-color-scheme: dark)</code>)</h3>
+  <pre><code>--bg: #0f0f0f;   --surface: #1a1a1a;   --surface-2: #242424;
+--border: #333;
+--text: #f0f0f0; --text-2: #999;       --text-3: #555;
+--accent: #E8935A;</code></pre>
+
+  <h2>10.2 CSS Modules</h2>
+  <p>Each component has a co-located <code>.module.css</code>. Class names locally scoped by Vite at build time.</p>
+
+  <!-- ─── 11. Build & Deployment ──────────────────────────────────────────── -->
+  <h1 id="s11">11. Build &amp; Deployment</h1>
+
+  <h2>11.1 Vite Configuration</h2>
+  <pre><code>export default defineConfig({
+  base: '/Films_PWA/',        // subdirectory base for GitHub Pages
+  plugins: [
+    react(),
+    VitePWA({
+      manifest: {
+        name: 'Films',
+        start_url: '/Films_PWA/',
+        scope: '/Films_PWA/',
+        icons: [
+          { src: 'icons/icon-192.png', sizes: '192x192', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', purpose: 'any maskable' },
+          { src: 'icons/icon.svg',     sizes: 'any' },
+        ],
+      },
+      workbox: { globPatterns: ['**/*.{js,css,html,svg,png}'] },
+    }),
+  ],
+})</code></pre>
+
+  <div class="callout">Icon paths use no leading slash so VitePWA prepends <code>/Films_PWA/</code> in the generated manifest. JSX references to public assets use <code>import.meta.env.BASE_URL + 'icons/icon.svg'</code> for the same reason.</div>
+
+  <h2>11.2 GitHub Actions Workflow</h2>
+  <pre><code>jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24 }
+      - run: npm install
+      - name: Generate PNG icons from SVG
+        run: |
+          sudo apt-get install -y librsvg2-bin
+          rsvg-convert -w 192 -h 192 public/icons/icon.svg > public/icons/icon-192.png
+          rsvg-convert -w 512 -h 512 public/icons/icon.svg > public/icons/icon-512.png
+      - run: npm run build
+        env: { VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }} }
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+  deploy:
+    needs: build
+    uses: actions/deploy-pages@v4</code></pre>
+
+  <div class="note">
+    PNG icons are generated <em>before</em> the Vite build so they land in <code>dist/icons/</code>.
+    <code>librsvg2-bin</code> is installed via <code>apt-get</code>; <code>rsvg-convert</code> correctly renders SVG
+    attributes including <code>fill</code>, <code>stroke</code>, and <code>rx</code>.
+  </div>
+
+  <h2>11.3 App Icon</h2>
+  <p><code>public/icons/icon.svg</code> — orange background (<code>#E07E38</code>, <code>rx=96</code>), white outlined rectangle (stroke-width 36, screen frame), white filled play triangle. Simple two-element design readable at any size.</p>
+
+  <h2>11.4 Environment Variables</h2>
+  <table>
+    <thead><tr><th>Variable</th><th>Purpose</th><th>Set in</th></tr></thead>
+    <tbody>
+      <tr><td><code>VITE_GOOGLE_CLIENT_ID</code></td><td>Google OAuth2 client ID</td><td>GitHub → Settings → Secrets → Actions</td></tr>
+    </tbody>
+  </table>
+  <p>TMDB API key is stored in user's <code>localStorage</code> (entered in Settings modal), not in env vars.</p>
+
+  <!-- ─── 12. Key Algorithms ──────────────────────────────────────────────── -->
+  <h1 id="s12">12. Key Algorithms</h1>
+
+  <h2>12.1 Virtual Scroll with Header Offset</h2>
+  <pre><code>// ResizeObserver on &lt;header&gt; tracks height including collapsible FilterPanel
+const ro = new ResizeObserver(e =&gt; setScrollMargin(e[0].contentRect.height))
+ro.observe(headerEl)
+
+useWindowVirtualizer({ scrollMargin, ... })
+// Each item: transform: translateY(item.start - scrollMargin)</code></pre>
+
+  <h2>12.2 Alphabetical Grouping</h2>
+  <pre><code>function firstLetter(m: Movie): string {
+  const ch = (m.title_ru || m.title_orig || '')[0]?.toUpperCase() ?? ''
+  if (/[А-ЯЁ]/.test(ch)) return ch   // Cyrillic first
+  if (/[A-Z]/.test(ch))   return ch   // then Latin
+  return '#'                           // then everything else
+}
+// Letter order: CYRILLIC.indexOf(l) → 100 + charCode → 999</code></pre>
+
+  <h2>12.3 SVG Donut Sector Path</h2>
+  <pre><code>function sectorPath(cx, cy, R, r, a1, a2): string {
+  const large = a2 - a1 &gt; Math.PI ? 1 : 0
+  return [
+    `M ${cx + R*cos(a1)} ${cy + R*sin(a1)}`,
+    `A ${R} ${R} 0 ${large} 1 ${cx + R*cos(a2)} ${cy + R*sin(a2)}`,
+    `L ${cx + r*cos(a2)} ${cy + r*sin(a2)}`,
+    `A ${r} ${r} 0 ${large} 0 ${cx + r*cos(a1)} ${cy + r*sin(a1)}`,
+    'Z',
+  ].join(' ')
+  // Outer arc CW (sweep=1), inner arc CCW (sweep=0)
+}</code></pre>
+
+  <h2>12.4 Stats — uniqueCount vs. Slice Sum</h2>
+  <pre><code>// Track films-with-data separately from the per-category counts:
+const validKeys = keys.filter(k =&gt; !!k)
+if (validKeys.length &gt; 0) uniqueCount++    // film counted once
+for (const k of validKeys) counts[k]++    // each key counted separately
+
+// Donut centre = uniqueCount (not sum of slice.count)
+// A film with genres ["Drama","Comedy","Thriller"] adds 3 to sum but 1 to uniqueCount</code></pre>
+
+  <h2>12.5 Background Enrichment Race Guard</h2>
+  <pre><code>const currentTmdbId = useRef&lt;string | null&gt;(null)
+
+async function selectTMDB(t: TMDBMovie) {
+  const tmdbId = String(t.id)
+  currentTmdbId.current = tmdbId
+  setPhase('form')              // show form immediately
+  // ...fetch genres, details, wikidata...
+  if (currentTmdbId.current !== tmdbId) return  // user changed selection
+  setForm(f =&gt; ({ ...f, ...enrichedData }))
+}</code></pre>
+
+  <p style="margin-top: 48px; padding-top: 16px; border-top: 1px solid #e4e4e7; color: #a1a1aa; font-size: 12px; text-align: center;">
+    Films PWA — Technical Specification v1.1 &nbsp;·&nbsp; May 2026 &nbsp;·&nbsp;
+    <a href="https://juliasivridi.github.io/Films_PWA/">juliasivridi.github.io/Films_PWA</a>
+  </p>
+
+</div>
+</body>
+</html>
