@@ -30,6 +30,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Generate PNG icons from SVG
+        run: |
+          sudo apt-get install -y librsvg2-bin
+          rsvg-convert -w 192 -h 192 public/icons/icon.svg > public/icons/icon-192.png
+          rsvg-convert -w 512 -h 512 public/icons/icon.svg > public/icons/icon-512.png
+
       - name: Build
         run: npm run build
         env:

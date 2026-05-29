@@ -16,17 +16,30 @@ export default defineConfig({
         background_color: '#F5F3F0',
         display: 'standalone',
         start_url: '/Films_PWA/',
+        scope: '/Films_PWA/',
         icons: [
           {
-            src: '/icons/icon.svg',
+            src: 'icons/icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: 'icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+          {
+            src: 'icons/icon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
-            purpose: 'any maskable',
+            purpose: 'any',
           },
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg}'],
+        globPatterns: ['**/*.{js,css,html,svg,png}'],
         runtimeCaching: [
           // Cache Google Fonts for offline use
           {
