@@ -6,7 +6,7 @@
 
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import type { Movie } from '../types/movie'
+import { type Movie, STATUS_COLORS } from '../types/movie'
 import { getPosterUrl, formatDuration } from '../services/tmdb'
 import AlphaPicker from './AlphaPicker'
 import styles from './MovieList.module.css'
@@ -175,6 +175,10 @@ export default function MovieList({ movies, onEdit, alphaOpen, onAlphaClose }: P
                             <span className="material-symbols-outlined">image</span>
                           </div>
                       }
+                      <span
+                        className={styles.statusDot}
+                        style={{ background: STATUS_COLORS[m.status] }}
+                      />
                     </button>
 
                     {/* Info column — tap opens edit */}

@@ -45,9 +45,18 @@
 
 .posterWrap {
   flex-shrink: 0;
+  position: relative;
   line-height: 0; /* no extra space below img */
-  border-radius: 5px;
-  overflow: hidden;
+}
+
+.statusDot {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
 }
 
 .poster {

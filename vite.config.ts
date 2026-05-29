@@ -9,7 +9,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Films — My Movie Library',
+        name: 'Films',
         short_name: 'Films',
         description: 'Personal movie database',
         theme_color: '#E07E38',

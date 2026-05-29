@@ -26,7 +26,7 @@ export default function LoginPage({ error: externalError }: Props) {
 
         {/* Horizontal logo row: icon left, name + tagline right */}
         <div className={styles.logoRow}>
-          <img src="/icons/icon.svg" alt="Films" className={styles.logoIcon} />
+          <img src={`${import.meta.env.BASE_URL}icons/icon.svg`} alt="Films" className={styles.logoIcon} />
           <div className={styles.logoTexts}>
             <h1 className={styles.logoText}>Films</h1>
             <p className={styles.tagline}>Your personal movie library</p>

@@ -71,7 +71,7 @@ function AppInner() {
   if (phase === 'loading') {
     return (
       <div className={styles.splash}>
-        <img src="/icons/icon.svg" width={64} height={64} alt="" />
+        <img src={`${import.meta.env.BASE_URL}icons/icon.svg`} width={64} height={64} alt="" />
         <div className={styles.splashSpinner} />
       </div>
     )

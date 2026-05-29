@@ -1,7 +1,10 @@
 /**
  * Statistics page — SVG donut chart breakdown of the full collection.
- * Dimensions: decade · rating bucket · country · genre · keyword.
+ * Dimensions: decade · rating bucket · country · genre.
  * Top 15 per dimension + "Others" bucket. No chart library — pure SVG.
+ * Center number shows unique film count for the current dimension,
+ * not the sum of slice values (which can exceed film count for multi-
+ * value fields like genre/country).
  */
 
 import { useMemo, useState } from 'react'
@@ -11,14 +14,13 @@ import styles from './StatsPage.module.css'
 
 /* ── types & constants ──────────────────────────────────────────── */
 
-type Dim = 'decade' | 'rating' | 'country' | 'genre' | 'keyword'
+type Dim = 'decade' | 'rating' | 'country' | 'genre'
 
 const DIMS: { key: Dim; label: string }[] = [
   { key: 'decade',  label: 'Decade'  },
   { key: 'rating',  label: 'Rating'  },
   { key: 'country', label: 'Country' },
   { key: 'genre',   label: 'Genre'   },
-  { key: 'keyword', label: 'Keyword' },
 ]
 
 const PALETTE = [
@@ -30,14 +32,16 @@ const OTHERS_COLOR = '#94a3b8'
 const TOP_N = 15
 
 interface Slice { label: string; count: number; color: string }
+interface SlicesResult { slices: Slice[]; uniqueCount: number }
 
 /* ── data computation ───────────────────────────────────────────── */
 
-function computeSlices(movies: Movie[], dim: Dim): Slice[] {
+function computeSlices(movies: Movie[], dim: Dim): SlicesResult {
   const counts: Record<string, number> = {}
+  let uniqueCount = 0
 
   for (const m of movies) {
-    let keys: string[]
+    let keys: string[] = []
     switch (dim) {
       case 'decade': {
         if (!m.year || m.year <= 0) continue
@@ -51,10 +55,11 @@ function computeSlices(movies: Movie[], dim: Dim): Slice[] {
       }
       case 'country': keys = m.countries ?? []; break
       case 'genre':   keys = m.genres   ?? []; break
-      case 'keyword': keys = m.keywords ?? []; break
     }
-    for (const k of keys) {
-      if (k) counts[k] = (counts[k] ?? 0) + 1
+    const validKeys = keys.filter(k => !!k)
+    if (validKeys.length > 0) uniqueCount++
+    for (const k of validKeys) {
+      counts[k] = (counts[k] ?? 0) + 1
     }
   }
 
@@ -69,7 +74,7 @@ function computeSlices(movies: Movie[], dim: Dim): Slice[] {
   }))
   if (rest > 0) slices.push({ label: 'Others', count: rest, color: OTHERS_COLOR })
 
-  return slices
+  return { slices, uniqueCount }
 }
 
 /* ── SVG donut ──────────────────────────────────────────────────── */
@@ -91,7 +96,7 @@ function sectorPath(
   ].join(' ')
 }
 
-function DonutChart({ slices }: { slices: Slice[] }) {
+function DonutChart({ slices, uniqueCount }: { slices: Slice[]; uniqueCount: number }) {
   const total = slices.reduce((s, x) => s + x.count, 0)
   if (total === 0) return null
 
@@ -117,7 +122,7 @@ function DonutChart({ slices }: { slices: Slice[] }) {
           strokeWidth="2.5"
         />
       ))}
-      <text x={cx} y={cy - 10} className={styles.svgTotal}>{total}</text>
+      <text x={cx} y={cy - 10} className={styles.svgTotal}>{uniqueCount}</text>
       <text x={cx} y={cy + 16} className={styles.svgLabel}>films</text>
     </svg>
   )
@@ -131,7 +136,7 @@ export default function StatsPage({ onBack }: Props) {
   const { movies } = useMovies()
   const [dim, setDim] = useState<Dim>('decade')
 
-  const slices = useMemo(() => computeSlices(movies, dim), [movies, dim])
+  const { slices, uniqueCount } = useMemo(() => computeSlices(movies, dim), [movies, dim])
 
   return (
     <div className={styles.page}>
@@ -160,7 +165,7 @@ export default function StatsPage({ onBack }: Props) {
       {/* Chart + legend */}
       {slices.length > 0 ? (
         <div className={styles.chartWrap}>
-          <DonutChart slices={slices} />
+          <DonutChart slices={slices} uniqueCount={uniqueCount} />
 
           <div className={styles.legend}>
             {slices.map((s, i) => (
