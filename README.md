@@ -4,20 +4,30 @@ A personal film library tracker built as a **Progressive Web App**. Runs in any 
 
 **Live:** [juliasivridi.github.io/Films_PWA](https://juliasivridi.github.io/Films_PWA/)
 
+[![Live App](https://img.shields.io/badge/Live%20App-Films-E07E38?style=for-the-badge&logo=github&logoColor=white)](https://juliasivridi.github.io/Films_PWA/)
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
+![Google Sheets](https://img.shields.io/badge/Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)
+![TMDB](https://img.shields.io/badge/TMDB-01B4E4?style=for-the-badge&logo=themoviedatabase&logoColor=white)
+![Wikidata](https://img.shields.io/badge/Wikidata-990000?style=for-the-badge&logo=wikidata&logoColor=white)
+![GitHub Pages](https://img.shields.io/badge/github%20pages-121013?style=for-the-badge&logo=github&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
+
 ---
 
 ## Features
 
-- **Smart Add** — type a title, pick from TMDB search results, and all fields auto-fill: Russian and original title, poster, genres, rating, runtime, countries, keywords, and four external links
-- **Auto-enriched links** — Kinopoisk URL and Wikipedia article fetched automatically via Wikidata SPARQL (property P2603); no scraping, no manual copy-paste
-- **Duplicate detection** — films already in your library show a ✓ Watched / ✓ Want badge directly in the TMDB search results; tapping one opens the edit form instead of adding a duplicate
-- **Alphabetical list view** — compact rows with window-level virtual scrolling; only visible rows are rendered so 3000+ films scroll smoothly; tap the logo to open an alphabet popup and jump to any letter instantly
-- **Status dot** — a 16×16 colour-coded circle (green = Watched, amber = Want) overlaid on each poster
-- **Unified search** — the top search bar searches title, genres, and keywords simultaneously
-- **Filter panel** — filter by status (Want / Watched), year range, rating range, and country; all filters stack
-- **Statistics page** — SVG donut chart showing collection breakdown by decade, rating bucket, country, or genre; accessible from the avatar menu
-- **Light / dark theme** — follows OS preference automatically
-- **PWA** — installable on Android, iOS, and desktop; PNG icons generated automatically in CI
+- 🔍 **Smart Add** — type a title, pick from TMDB search results, and all fields auto-fill: Russian and original title, poster, genres, rating, runtime, countries, keywords, and four external links
+- 🔗 **Auto-enriched links** — Kinopoisk URL and Wikipedia article fetched automatically via Wikidata SPARQL (property P2603); no scraping, no manual copy-paste
+- ✅ **Duplicate detection** — films already in your library show a ✓ Watched / ✓ Want badge directly in the TMDB search results; tapping one opens the edit form instead of adding a duplicate
+- 🔤 **Alphabetical list view** — compact rows with window-level virtual scrolling; only visible rows are rendered so 3000+ films scroll smoothly; tap the logo to open an alphabet popup and jump to any letter instantly
+- 🟢 **Status dot** — a 16×16 colour-coded circle (green = Watched, amber = Want) overlaid on each poster
+- 🔎 **Unified search** — the top search bar searches title, genres, and keywords simultaneously
+- 🎛️ **Filter panel** — filter by status (Want / Watched), year range, rating range, and country; all filters stack
+- 📊 **Statistics page** — SVG donut chart showing collection breakdown by decade, rating bucket, country, or genre; accessible from the avatar menu
+- 🌙 **Light / dark theme** — follows OS preference automatically
+- 📱 **PWA** — installable on Android, iOS, and desktop; PNG icons generated automatically in CI
 
 ---
 
@@ -25,16 +35,16 @@ A personal film library tracker built as a **Progressive Web App**. Runs in any 
 
 | Layer | Technology |
 |---|---|
-| Framework | React 18 + TypeScript 5 |
-| Build | Vite 5 |
-| Styling | CSS Modules + CSS custom properties (light / dark theme) |
-| Database | Google Sheets API v4 |
-| Auth | Google Identity Services (OAuth 2.0) |
-| Movie data | TMDB API v3 |
-| External links | Wikidata SPARQL — Kinopoisk IDs (P2603) + Wikipedia sitelinks |
-| Virtual scrolling | @tanstack/react-virtual v3 (useWindowVirtualizer) |
-| PWA | vite-plugin-pwa (Workbox) + PNG icons generated in CI via rsvg-convert |
-| Hosting | GitHub Pages (auto-deploy via GitHub Actions on push to `main`) |
+| ⚛️ Framework | React 18 + TypeScript 5 |
+| ⚡ Build | Vite 5 |
+| 🎨 Styling | CSS Modules + CSS custom properties (light / dark theme) |
+| 🗄️ Database | Google Sheets API v4 |
+| 🔐 Auth | Google Identity Services (OAuth 2.0) |
+| 🎬 Movie data | TMDB API v3 |
+| 🔗 External links | Wikidata SPARQL — Kinopoisk IDs (P2603) + Wikipedia sitelinks |
+| 📜 Virtual scrolling | @tanstack/react-virtual v3 (useWindowVirtualizer) |
+| 📱 PWA | vite-plugin-pwa (Workbox) + PNG icons generated in CI via rsvg-convert |
+| 🚀 Hosting | GitHub Pages (auto-deploy via GitHub Actions on push to `main`) |
 
 ---
 
