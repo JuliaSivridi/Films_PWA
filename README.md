@@ -1,18 +1,20 @@
 # Films
 
+[![Live PWA](https://img.shields.io/badge/Films_PWA-Live_PWA-E07E38?style=for-the-badge)](https://juliasivridi.github.io/Films_PWA/)
+
+![TypeScript](https://img.shields.io/badge/TypeScript_5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite_5-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Google Sheets](https://img.shields.io/badge/Google_Sheets_API-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)
+![Google OAuth](https://img.shields.io/badge/Google_OAuth_2.0-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![TMDB](https://img.shields.io/badge/TMDB_API-01B4E4?style=for-the-badge&logo=themoviedatabase&logoColor=white)
+![Wikidata](https://img.shields.io/badge/Wikidata_SPARQL-990000?style=for-the-badge&logo=wikidata&logoColor=white)
+![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-222222?style=for-the-badge&logo=githubpages&logoColor=white)](https://juliasivridi.github.io/Films_PWA/)
+
 A personal film library tracker built as a **Progressive Web App**. Runs in any browser and installs on Android/iOS/desktop as a standalone app. No backend — Google Sheets is the database.
 
 **Live:** [juliasivridi.github.io/Films_PWA](https://juliasivridi.github.io/Films_PWA/)
-
-[![Live App](https://img.shields.io/badge/Live%20App-Films-E07E38?style=for-the-badge&logo=github&logoColor=white)](https://juliasivridi.github.io/Films_PWA/)
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
-![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
-![Google Sheets](https://img.shields.io/badge/Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)
-![TMDB](https://img.shields.io/badge/TMDB-01B4E4?style=for-the-badge&logo=themoviedatabase&logoColor=white)
-![Wikidata](https://img.shields.io/badge/Wikidata-990000?style=for-the-badge&logo=wikidata&logoColor=white)
-![GitHub Pages](https://img.shields.io/badge/github%20pages-121013?style=for-the-badge&logo=github&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
 
 ---
 
