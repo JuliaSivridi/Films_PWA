@@ -7,8 +7,17 @@ import styles from './MovieGrid.module.css'
 
 interface Props { alphaOpen: boolean; onAlphaClose: () => void }
 
+function pluralFilm(n: number): string {
+  const mod10 = n % 10
+  const mod100 = n % 100
+  if (mod100 >= 11 && mod100 <= 19) return `${n} фильмов`
+  if (mod10 === 1) return `${n} фильм`
+  if (mod10 >= 2 && mod10 <= 4) return `${n} фильма`
+  return `${n} фильмов`
+}
+
 export default function MovieGrid({ alphaOpen, onAlphaClose }: Props) {
-  const { filtered, loading, error } = useMovies()
+  const { movies, filtered, loading, error } = useMovies()
   const [editing, setEditing] = useState<Movie | null>(null)
   const [showAdd, setShowAdd] = useState(false)
 
@@ -24,8 +33,19 @@ export default function MovieGrid({ alphaOpen, onAlphaClose }: Props) {
     </div>
   )
 
+  const isFiltered = filtered.length !== movies.length
+
   return (
     <div className={styles.wrap}>
+
+      {/* Count */}
+      {filtered.length > 0 && (
+        <p className={styles.resultCount}>
+          {isFiltered
+            ? `${filtered.length} из ${movies.length}`
+            : pluralFilm(filtered.length)}
+        </p>
+      )}
 
       {/* Empty state */}
       {filtered.length === 0 && (

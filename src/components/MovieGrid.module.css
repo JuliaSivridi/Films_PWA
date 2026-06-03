@@ -17,6 +17,7 @@
   font-size: .8rem;
   color: var(--text-3);
   font-variant-numeric: tabular-nums;
+  padding: 8px 16px 4px;
 }
 
 /* ── Grid (optional, kept for future use) ───────────────────── */
