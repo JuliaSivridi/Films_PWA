@@ -12,7 +12,7 @@ type Phase    = 'search' | 'form'
 type FormData = Omit<Movie, 'id' | '_row'>
 
 const BLANK: FormData = {
-  title_ru: '', title_orig: '', year: 0, status: 'watched', // default: Watched
+  title_ru: '', title_orig: '', year: 0, status: 'want',
   tmdb_id: undefined, poster_path: undefined,
   genres: undefined, tmdb_rating: undefined, duration_min: undefined,
   kinopoisk_url: undefined, imdb_url: undefined,
