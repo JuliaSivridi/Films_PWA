@@ -13,7 +13,7 @@ export default defineConfig({
         short_name: 'Films',
         description: 'Personal movie database',
         theme_color: '#E07E38',
-        background_color: '#F5F3F0',
+        background_color: '#E07E38',
         display: 'standalone',
         start_url: '/Films_PWA/',
         scope: '/Films_PWA/',
