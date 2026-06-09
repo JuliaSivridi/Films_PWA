@@ -386,7 +386,7 @@ export const STATUS_COLORS: Record&lt;MovieStatus, string&gt; = {
   <h1 id="s5">5. External APIs</h1>
 
   <h2>5.1 Google Identity Services</h2>
-  <p>OAuth 2.0 implicit flow. Token in memory. Scopes: <code>email profile spreadsheets drive.metadata.readonly</code>. <code>CLIENT_ID</code> from <code>VITE_GOOGLE_CLIENT_ID</code> env var.</p>
+  <p>OAuth 2.0 implicit flow. Token in memory. Scopes: <code>email profile spreadsheets drive.metadata.readonly</code>. <code>CLIENT_ID</code> from <code>VITE_GOOGLE_CLIENT_ID</code> env var, with <code>localStorage('films_google_client_id')</code> fallback (namespaced to avoid key collisions with other apps on the shared <code>juliasivridi.github.io</code> origin).</p>
 
   <h2>5.2 Google Sheets API v4</h2>
   <table>

@@ -186,7 +186,7 @@ Array fields (genres, countries, keywords) are stored as JSON-serialized string 
 - TypeScript types declared in `src/google.d.ts`
 - OAuth 2.0 implicit flow; access token held in memory only
 - Scopes: `email profile spreadsheets drive.metadata.readonly`
-- `CLIENT_ID` from `VITE_GOOGLE_CLIENT_ID` env var, with `localStorage('google_client_id')` fallback
+- `CLIENT_ID` from `VITE_GOOGLE_CLIENT_ID` env var, with `localStorage('films_google_client_id')` fallback (namespaced to avoid collisions with other apps sharing the `juliasivridi.github.io` origin)
 
 ### 5.2 Google Sheets API v4
 
@@ -592,7 +592,7 @@ The TMDB API key is stored in user's `localStorage`, not in environment variable
 - `name: 'Films'` / `short_name: 'Films'`
 - `start_url: '/Films_PWA/'`, `scope: '/Films_PWA/'`
 - Three icons: 192 PNG (any), 512 PNG (maskable), SVG (any)
-- `display: standalone`, `theme_color: '#E07E38'`, `background_color: '#F5F3F0'`
+- `display: standalone`, `theme_color: '#E07E38'`, `background_color: '#E07E38'` (orange splash screen, matches icon)
 
 ### 11.6 Asset Paths in JSX
 
