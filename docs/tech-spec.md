@@ -1,7 +1,7 @@
 # Films PWA — Technical Specification
 
-**Version:** 1.1  
-**Date:** May 2026  
+**Version:** 1.2  
+**Date:** June 2026  
 **Repository:** `JuliaSivridi/Films_PWA`  
 **Deployed at:** GitHub Pages — `https://juliasivridi.github.io/Films_PWA/`
 
@@ -406,6 +406,10 @@ Controls bound to `MoviesContext`: Status chips (All/Want/Watched), Year range, 
 
 Orchestrator for the list view: loading spinner → error text → empty state → `<MovieList>` + FAB. Manages `editing: Movie | null` to open `AddMovieModal` in edit mode.
 
+**Result count** — shown above the list when `filtered.length > 0`. Format:
+- No active filters: `"312 films"` (singular `"1 film"`)
+- Filters/search active: `"47 of 312"` (when `filtered.length !== movies.length`)
+
 ### 8.6 `MovieList`
 
 Sorted (`localeCompare('ru')`) and grouped into `VItem[]` (dividers + rows). Letter order: Cyrillic → A–Z → `#`.
@@ -431,7 +435,7 @@ Two-phase modal (`'search'` → `'form'`):
 - **Search phase:** debounced TMDB search (400 ms, min 2 chars); duplicate detection via `tmdbIndex = useMemo(() => Map<tmdb_id, Movie>)`; existing films show status badge
 - **Background enrichment** after TMDB selection: genres, runtime, countries, keywords, IMDb ID, KP/Wiki fetched concurrently; `currentTmdbId` ref guards against stale results
 - **Form order:** Poster+Titles → Year/Duration → Status → Links (editable) → Countries (read-only) → Genres (read-only chips) → Keywords (read-only chips)
-- **Default status:** `'watched'`
+- **Default status:** `'want'`
 
 ### 8.8 `StatsPage`
 
@@ -581,7 +585,7 @@ The TMDB API key is stored in user's `localStorage`, not in environment variable
 
 ### 11.4 App Icon
 
-`public/icons/icon.svg` — orange background (`#E07E38`, rounded square rx=96), white outlined rectangle (screen frame, stroke-width=36), white filled play triangle. Simple two-element design for legibility at small sizes.
+`public/icons/icon.svg` — orange background (`#E07E38`, rounded square `rx=22` on a 100×100 viewBox), white Material Design `VideoLibraryOutlined` icon path (scaled 3.33×, translated to centre). The icon is a stylised film-monitor with a play arrow, chosen for legibility at small sizes.
 
 ### 11.5 PWA Manifest
 
@@ -681,4 +685,4 @@ const tmdbIndex = useMemo(() => {
 
 ---
 
-*End of Technical Specification — v1.1*
+*End of Technical Specification — v1.2*

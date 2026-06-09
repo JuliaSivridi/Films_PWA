@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Films PWA — Technical Specification v1.1</title>
+  <title>Films PWA — Technical Specification v1.2</title>
   <style>
   @page { margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -227,8 +227,8 @@
   <div class="subtitle">Personal Movie Collection PWA</div>
   <div class="accent-line"></div>
   <div class="meta">
-    <strong>Document:</strong> Technical Specification v1.1<br>
-    <strong>Date:</strong> May 2026<br>
+    <strong>Document:</strong> Technical Specification v1.2<br>
+    <strong>Date:</strong> June 2026<br>
     <strong>Repository:</strong> JuliaSivridi/Films_PWA<br>
     <strong>Live:</strong> <a href="https://juliasivridi.github.io/Films_PWA/" style="color:#fb923c;">juliasivridi.github.io/Films_PWA</a><br>
     <strong>Deploy:</strong> GitHub Pages via GitHub Actions (push to <code style="background:none;border:none;color:#fb923c;">main</code>)
@@ -516,8 +516,14 @@ refreshTokenIfNeeded() → if Date.now() > tokenExpiresAt − 30_000 → silent 
     <code>border: 2px solid var(--surface)</code> separates it visually from the poster.
   </div>
 
+  <h2>8.4a MovieGrid</h2>
+  <p>Orchestrator for the list view: loading spinner → error text → empty state → <code>&lt;MovieList&gt;</code> + FAB. Manages <code>editing: Movie | null</code> to open <code>AddMovieModal</code> in edit mode.</p>
+  <div class="callout">
+    <strong>Result count</strong> — shown above the list when <code>filtered.length &gt; 0</code>. No active filters: <code>"312 films"</code>. Filters/search active: <code>"47 of 312"</code> (when <code>filtered.length !== movies.length</code>).
+  </div>
+
   <h2>8.5 AddMovieModal</h2>
-  <p>Two-phase (<code>'search'</code> → <code>'form'</code>). Background enrichment: genres, runtime, countries, keywords, IMDb ID, KP/Wiki fetched concurrently after TMDB pick; <code>currentTmdbId</code> ref discards stale results. Form order: Poster+Titles → Year/Duration → Status → Links → Countries → Genres → Keywords.</p>
+  <p>Two-phase (<code>'search'</code> → <code>'form'</code>). Background enrichment: genres, runtime, countries, keywords, IMDb ID, KP/Wiki fetched concurrently after TMDB pick; <code>currentTmdbId</code> ref discards stale results. Form order: Poster+Titles → Year/Duration → Status → Links → Countries → Genres → Keywords. <strong>Default status: <code>'want'</code>.</strong></p>
 
   <h2>8.6 StatsPage</h2>
   <p>Dimensions: Decade · Rating · Country · Genre. <code>computeSlices()</code> returns <code>{ slices, uniqueCount }</code>.</p>
@@ -632,7 +638,7 @@ refreshTokenIfNeeded() → if Date.now() > tokenExpiresAt − 30_000 → silent 
   </div>
 
   <h2>11.3 App Icon</h2>
-  <p><code>public/icons/icon.svg</code> — orange background (<code>#E07E38</code>, <code>rx=96</code>), white outlined rectangle (stroke-width 36, screen frame), white filled play triangle. Simple two-element design readable at any size.</p>
+  <p><code>public/icons/icon.svg</code> — orange background (<code>#E07E38</code>, rounded square <code>rx=22</code> on 100×100 viewBox), white Material Design <code>VideoLibraryOutlined</code> icon path (scaled 3.33×, translated to centre). A stylised film-monitor with a play arrow, legible at small sizes.</p>
 
   <h2>11.4 Environment Variables</h2>
   <table>
@@ -698,7 +704,7 @@ async function selectTMDB(t: TMDBMovie) {
 }</code></pre>
 
   <p style="margin-top: 48px; padding-top: 16px; border-top: 1px solid #e4e4e7; color: #a1a1aa; font-size: 12px; text-align: center;">
-    Films PWA — Technical Specification v1.1 &nbsp;·&nbsp; May 2026 &nbsp;·&nbsp;
+    Films PWA — Technical Specification v1.2 &nbsp;·&nbsp; June 2026 &nbsp;·&nbsp;
     <a href="https://juliasivridi.github.io/Films_PWA/">juliasivridi.github.io/Films_PWA</a>
   </p>
 
