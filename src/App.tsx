@@ -10,7 +10,7 @@ import StatsPage from './components/StatsPage'
 import styles from './App.module.css'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-  localStorage.getItem('google_client_id') || ''
+  localStorage.getItem('films_google_client_id') || ''
 
 type Phase = 'loading' | 'login' | 'ready'
 
