@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useMemo, useReducer } from 'react'
 import type { Movie, MovieStatus } from '../types/movie'
 import {
-  fetchMovies, addMovie, updateMovie, deleteMovie, initializeSheet,
+  fetchMovies, addMovie, updateMovie, initializeSheet,
 } from '../services/sheets'
 
 /* ── filter shape ──────────────────────────────────────────────── */
@@ -37,7 +37,6 @@ type Action =
   | { type: 'SET';          payload: Movie[] }
   | { type: 'ADD';          payload: Movie }
   | { type: 'UPDATE';       payload: Movie }
-  | { type: 'DELETE';       payload: string }
   | { type: 'ERROR';        payload: string }
   | { type: 'QUERY';        payload: string }
   | { type: 'SET_FILTERS';  payload: Partial<FiltersState> }
@@ -49,7 +48,6 @@ function reducer(s: State, a: Action): State {
     case 'SET':           return { ...s, movies: a.payload, loading: false, error: null }
     case 'ADD':           return { ...s, movies: [...s.movies, a.payload] }
     case 'UPDATE':        return { ...s, movies: s.movies.map(m => m.id === a.payload.id ? a.payload : m) }
-    case 'DELETE':        return { ...s, movies: s.movies.filter(m => m.id !== a.payload) }
     case 'ERROR':         return { ...s, error: a.payload, loading: false }
     case 'QUERY':         return { ...s, query: a.payload }
     case 'SET_FILTERS':   return { ...s, filters: { ...s.filters, ...a.payload } }
@@ -66,7 +64,6 @@ interface Ctx extends State {
   load:         () => Promise<void>
   create:       (m: Movie) => Promise<void>
   edit:         (m: Movie) => Promise<void>
-  remove:       (m: Movie) => Promise<void>
   setQuery:     (q: string) => void
   setFilters:   (f: Partial<FiltersState>) => void
   clearFilters: () => void
@@ -100,11 +97,6 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
   const edit = useCallback(async (m: Movie) => {
     await updateMovie(m)
     dispatch({ type: 'UPDATE', payload: m })
-  }, [])
-
-  const remove = useCallback(async (m: Movie) => {
-    await deleteMovie(m)
-    dispatch({ type: 'DELETE', payload: m.id })
   }, [])
 
   const setQuery     = useCallback((q: string) => dispatch({ type: 'QUERY', payload: q }), [])
@@ -154,7 +146,7 @@ export function MoviesProvider({ children }: { children: React.ReactNode }) {
   return (
     <MoviesCtx.Provider value={{
       ...state, filtered, activeFilterCount,
-      load, create, edit, remove, setQuery, setFilters, clearFilters,
+      load, create, edit, setQuery, setFilters, clearFilters,
     }}>
       {children}
     </MoviesCtx.Provider>

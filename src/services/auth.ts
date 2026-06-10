@@ -1,5 +1,5 @@
 // Google Identity Services – client-side OAuth 2.0
-// Token lives in memory only; user profile persisted in localStorage.
+// Token is persisted in localStorage so page refresh doesn't require GIS popup.
 // Types come from src/google.d.ts (GoogleTokenResponse, GoogleTokenClient, Window.google).
 
 const SCOPES = [
@@ -9,7 +9,9 @@ const SCOPES = [
   'https://www.googleapis.com/auth/drive.metadata.readonly',
 ].join(' ')
 
-const USER_KEY = 'films_user'
+const USER_KEY         = 'films_user'
+const TOKEN_KEY        = 'films_token'
+const TOKEN_EXPIRY_KEY = 'films_token_expiry'
 
 let accessToken: string | null = null
 let tokenExpiresAt = 0
@@ -44,6 +46,34 @@ export function getToken(): string | null { return accessToken }
 
 export function isTokenFresh(): boolean {
   return !!accessToken && Date.now() < tokenExpiresAt - 30_000
+}
+
+/* ── token persistence ──────────────────────────────────────────── */
+
+function persistToken(token: string, expiresIn: number) {
+  const expiry = Date.now() + expiresIn * 1000
+  localStorage.setItem(TOKEN_KEY, token)
+  localStorage.setItem(TOKEN_EXPIRY_KEY, String(expiry))
+  accessToken = token
+  tokenExpiresAt = expiry
+}
+
+function loadPersistedToken(): boolean {
+  const token  = localStorage.getItem(TOKEN_KEY)
+  const expiry = parseInt(localStorage.getItem(TOKEN_EXPIRY_KEY) ?? '0')
+  if (token && Date.now() < expiry - 30_000) {
+    accessToken    = token
+    tokenExpiresAt = expiry
+    return true
+  }
+  return false
+}
+
+function clearPersistedToken() {
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(TOKEN_EXPIRY_KEY)
+  accessToken    = null
+  tokenExpiresAt = 0
 }
 
 /* ── listeners ──────────────────────────────────────────────────── */
@@ -87,8 +117,7 @@ function makeTokenClient(
         onError(r.error)
         return
       }
-      accessToken = r.access_token
-      tokenExpiresAt = Date.now() + (r.expires_in ?? 3600) * 1000
+      persistToken(r.access_token, r.expires_in ?? 3600)
 
       // Fetch and persist profile on first sign-in (needed for future silent auth)
       if (!getUser()) {
@@ -139,10 +168,8 @@ export function signIn(): Promise<void> {
 }
 
 export function signOut(): void {
-  const email = getUser()?.email
-  if (email) window.google?.accounts?.oauth2?.revoke(email, () => {})
-  accessToken = null
-  tokenExpiresAt = 0
+  if (accessToken) window.google?.accounts?.oauth2?.revoke(accessToken, () => {})
+  clearPersistedToken()
   localStorage.removeItem(USER_KEY)
   notify(false)
 }
@@ -150,6 +177,7 @@ export function signOut(): void {
 /** Refresh token silently before API calls. */
 export async function refreshTokenIfNeeded(): Promise<string | null> {
   if (isTokenFresh()) return accessToken
+  if (loadPersistedToken()) return accessToken
   const ok = await trySilentSignIn()
   return ok ? accessToken : null
 }
@@ -168,6 +196,13 @@ function waitForGIS(): Promise<void> {
 
 export async function initAuth(clientId: string): Promise<void> {
   CLIENT_ID = clientId
+
+  // Fast path: use stored token if still valid — no GIS popup needed
+  if (getUser() && loadPersistedToken()) {
+    notify(true)
+    return
+  }
+
   await waitForGIS()
 
   if (getUser()) {

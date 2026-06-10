@@ -45,6 +45,12 @@ async function api(path: string, method: string, body?: object): Promise<Respons
   return res
 }
 
+// Only http(s) URLs are allowed — anything else (e.g. javascript:) is dropped
+function safeUrl(raw: string | undefined): string | undefined {
+  if (!raw) return undefined
+  return /^https?:\/\//i.test(raw.trim()) ? raw.trim() : undefined
+}
+
 function parseArr(raw: string | undefined): string[] | undefined {
   if (!raw) return undefined
   try {
@@ -68,10 +74,10 @@ function rowToMovie(row: string[], rowIndex: number): Movie {
     genres:        parseArr(row[7]),
     tmdb_rating:   row[8]  ? parseFloat(row[8]) : undefined,
     duration_min:  row[9]  ? parseInt(row[9])   : undefined,
-    kinopoisk_url: row[10] || undefined,
-    imdb_url:      row[11] || undefined,
-    tmdb_url:      row[12] || undefined,
-    wiki_url:      row[13] || undefined,
+    kinopoisk_url: safeUrl(row[10]),
+    imdb_url:      safeUrl(row[11]),
+    tmdb_url:      safeUrl(row[12]),
+    wiki_url:      safeUrl(row[13]),
     countries:     parseArr(row[14]),
     keywords:      parseArr(row[15]),
     _row: rowIndex + 2,
@@ -148,32 +154,3 @@ export async function updateMovie(movie: Movie): Promise<void> {
   )
 }
 
-export async function deleteMovie(movie: Movie): Promise<void> {
-  if (!movie._row) throw new Error('Row number unknown')
-  const token = await refreshTokenIfNeeded()
-  if (!token) throw new Error('Not authorized')
-  const id = getSheetId()
-
-  const metaRes = await fetch(`${SHEETS_BASE}/${id}?fields=sheets.properties`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  const meta  = await metaRes.json()
-  const sheet = meta.sheets?.find(
-    (s: { properties: { title: string; sheetId: number } }) =>
-      s.properties.title === SHEET_NAME,
-  )
-  if (!sheet) throw new Error('Movies sheet not found')
-
-  await api(':batchUpdate', 'POST', {
-    requests: [{
-      deleteDimension: {
-        range: {
-          sheetId:    sheet.properties.sheetId,
-          dimension:  'ROWS',
-          startIndex: movie._row - 1,
-          endIndex:   movie._row,
-        },
-      },
-    }],
-  })
-}
