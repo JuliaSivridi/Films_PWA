@@ -42,14 +42,20 @@ export default function MovieGrid({ alphaOpen, onAlphaClose }: Props) {
         </p>
       )}
 
-      {/* Empty state */}
+      {/* Empty state: first run vs. nothing matched the search/filters */}
       {filtered.length === 0 && (
         <div className={styles.empty}>
           <span className={`material-symbols-outlined ${styles.emptyIcon}`}>movie</span>
-          <p>No movies found</p>
-          <button className={styles.addFirst} onClick={() => setShowAdd(true)}>
-            Add your first movie
-          </button>
+          {movies.length === 0 ? (
+            <>
+              <p>No movies yet</p>
+              <button className={styles.addFirst} onClick={() => setShowAdd(true)}>
+                Add your first movie
+              </button>
+            </>
+          ) : (
+            <p>Nothing matches your search or filters</p>
+          )}
         </div>
       )}
 
