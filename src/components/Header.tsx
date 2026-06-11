@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useMovies } from '../context/MoviesContext'
 import { useAuth } from '../context/AuthContext'
 import SettingsModal from './SettingsModal'
+import HelpModal from './HelpModal'
+import FeedbackModal from './FeedbackModal'
 import FilterPanel from './FilterPanel'
 import styles from './Header.module.css'
 
@@ -13,6 +15,8 @@ export default function Header({ onLogoClick, onStatsClick }: Props) {
   const [menuOpen,     setMenuOpen]     = useState(false)
   const [filterOpen,   setFilterOpen]   = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [showHelp,     setShowHelp]     = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -94,6 +98,22 @@ export default function Header({ onLogoClick, onStatsClick }: Props) {
                   <span className="material-symbols-outlined">settings</span>
                   Settings
                 </button>
+                <button
+                  className={styles.menuItem}
+                  role="menuitem"
+                  onClick={() => { setMenuOpen(false); setShowHelp(true) }}
+                >
+                  <span className="material-symbols-outlined">help</span>
+                  Help
+                </button>
+                <button
+                  className={styles.menuItem}
+                  role="menuitem"
+                  onClick={() => { setMenuOpen(false); setShowFeedback(true) }}
+                >
+                  <span className="material-symbols-outlined">chat</span>
+                  Feedback
+                </button>
                 <div className={styles.menuDivider} />
                 <button
                   className={`${styles.menuItem} ${styles.menuSignOut}`}
@@ -114,6 +134,8 @@ export default function Header({ onLogoClick, onStatsClick }: Props) {
       </header>
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showHelp     && <HelpModal     onClose={() => setShowHelp(false)} />}
+      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
     </>
   )
 }
