@@ -17,6 +17,7 @@ const SECTIONS: { title: string; items: [string, string][] }[] = [
     items: [
       ['Search', 'Search by title, genre or keyword.'],
       ['Filters', 'The tune icon opens filters: status, year range, rating range, country. The badge shows active filters.'],
+      ['Jump to letter', 'Tap the Films logo to jump to a letter in the list.'],
       ['Statistics', 'Open Statistics from the avatar menu for breakdowns of your collection.'],
     ],
   },

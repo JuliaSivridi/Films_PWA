@@ -32,12 +32,15 @@ function MainContent() {
 
   return (
     <>
-      <Header
-        onLogoClick={handleLogoClick}
-        onStatsClick={() => setView('stats')}
-        onHelpClick={() => setView('help')}
-        onFeedbackClick={() => setView('feedback')}
-      />
+      {/* Help/Feedback are full-screen: their own "back + title" row replaces the main header */}
+      {(view === 'list' || view === 'stats') && (
+        <Header
+          onLogoClick={handleLogoClick}
+          onStatsClick={() => setView('stats')}
+          onHelpClick={() => setView('help')}
+          onFeedbackClick={() => setView('feedback')}
+        />
+      )}
       {view === 'list'     ? <MovieGrid alphaOpen={alphaOpen} onAlphaClose={() => setAlphaOpen(false)} />
         : view === 'stats' ? <StatsPage onBack={() => setView('list')} />
         : view === 'help'  ? <HelpPage onBack={() => setView('list')} />
