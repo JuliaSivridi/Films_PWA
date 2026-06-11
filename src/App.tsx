@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { initAuth, onAuthChange } from './services/auth'
-import { findOrCreateFilmsFile } from './services/drive'
+import { checkFilmsFile, createFilmsFile, setSheetFile } from './services/drive'
+import { openSpreadsheetPicker } from './services/picker'
 import { AuthProvider } from './context/AuthContext'
 import { MoviesProvider, useMovies } from './context/MoviesContext'
 import LoginPage from './components/LoginPage'
@@ -13,8 +14,11 @@ import styles from './App.module.css'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ||
   localStorage.getItem('films_google_client_id') || ''
+export const PICKER_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || ''
+// Cloud project number — the numeric prefix of the OAuth client id
+export const PICKER_APP_ID = CLIENT_ID.split('-')[0] || ''
 
-type Phase = 'loading' | 'login' | 'ready'
+type Phase = 'loading' | 'login' | 'setup' | 'ready'
 
 type View = 'list' | 'stats' | 'help' | 'feedback'
 
@@ -50,6 +54,48 @@ function MainContent() {
   )
 }
 
+/** First-run / migration screen: never create a file silently — the user
+ *  explicitly creates a new spreadsheet or picks an existing one. */
+function SetupScreen({ onDone }: { onDone: () => void }) {
+  const [busy, setBusy]   = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleCreate() {
+    setBusy(true); setError('')
+    try { await createFilmsFile(); onDone() }
+    catch (e) { setError(String(e)) }
+    finally { setBusy(false) }
+  }
+
+  async function handlePick() {
+    setError('')
+    try {
+      const file = await openSpreadsheetPicker(PICKER_API_KEY, PICKER_APP_ID)
+      if (file) { setSheetFile(file.id, file.name); onDone() }
+    } catch (e) { setError(String(e)) }
+  }
+
+  return (
+    <div className={styles.splash}>
+      <img src={`${import.meta.env.BASE_URL}icons/icon.svg`} width={64} height={64} alt="" />
+      <h2 style={{ margin: '18px 0 4px' }}>Choose your data file</h2>
+      <p style={{ opacity: .7, maxWidth: 320, textAlign: 'center', lineHeight: 1.45, fontSize: '.95rem' }}>
+        Films stores your collection in a Google Sheets file in your Drive.
+        Create a new one, or pick an existing spreadsheet (e.g. your db_films).
+      </p>
+      <div style={{ display: 'flex', gap: 12, marginTop: 18, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button className={styles.setupPrimary} onClick={handlePick} disabled={busy}>
+          Choose from Google Drive
+        </button>
+        <button className={styles.setupSecondary} onClick={handleCreate} disabled={busy}>
+          {busy ? 'Creating…' : 'Create new spreadsheet'}
+        </button>
+      </div>
+      {error && <p style={{ color: '#e05555', marginTop: 14, maxWidth: 340, textAlign: 'center' }}>{error}</p>}
+    </div>
+  )
+}
+
 function AppInner() {
   const [phase, setPhase] = useState<Phase>('loading')
   const [driveError, setDriveError] = useState('')
@@ -58,8 +104,7 @@ function AppInner() {
     const unsub = onAuthChange(async isAuth => {
       if (!isAuth) { setPhase('login'); return }
       try {
-        await findOrCreateFilmsFile()
-        setPhase('ready')
+        setPhase(await checkFilmsFile() === 'ready' ? 'ready' : 'setup')
       } catch (e) {
         setDriveError(String(e))
         setPhase('login')
@@ -86,6 +131,8 @@ function AppInner() {
   }
 
   if (phase === 'login') return <LoginPage error={driveError} />
+
+  if (phase === 'setup') return <SetupScreen onDone={() => setPhase('ready')} />
 
   return <MainContent />
 }

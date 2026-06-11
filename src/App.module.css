@@ -18,3 +18,31 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Setup screen (choose / create data file) */
+.setupPrimary,
+.setupSecondary {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s, background .15s;
+}
+
+.setupPrimary {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+}
+.setupPrimary:hover { opacity: .9; }
+
+.setupSecondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.setupSecondary:hover { background: var(--surface); }
+
+.setupPrimary:disabled,
+.setupSecondary:disabled { opacity: .5; cursor: default; }

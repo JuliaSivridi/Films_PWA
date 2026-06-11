@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
 import { getTmdbKey } from '../services/tmdb'
-import { getSheetId, getSheetName, setSheetFile, listUserSheets } from '../services/drive'
+import { getSheetId, getSheetName, setSheetFile } from '../services/drive'
+import { openSpreadsheetPicker } from '../services/picker'
+import { PICKER_API_KEY, PICKER_APP_ID } from '../App'
 import { useMovies } from '../context/MoviesContext'
 import styles from './SettingsModal.module.css'
-
-interface SheetFile { id: string; name: string }
 
 interface Props { onClose: () => void }
 
@@ -12,36 +12,25 @@ export default function SettingsModal({ onClose }: Props) {
   const { load } = useMovies()
   const [tmdbKey, setTmdbKey] = useState(getTmdbKey())
   const [saved, setSaved] = useState(false)
-
-  const [pickerOpen, setPickerOpen] = useState(false)
-  const [pickerFiles, setPickerFiles] = useState<SheetFile[]>([])
-  const [pickerLoading, setPickerLoading] = useState(false)
   const [pickerError, setPickerError] = useState('')
 
   const currentId = getSheetId()
   const currentName = getSheetName()
   const overlayRef = useRef<HTMLDivElement>(null)
 
+  // Native Google Picker: picking a file also grants the app access to it
+  // (we only have the drive.file scope — the rest of Drive is invisible).
   async function handleOpenPicker() {
-    if (pickerOpen) { setPickerOpen(false); return }
-    setPickerOpen(true)
-    setPickerLoading(true)
     setPickerError('')
     try {
-      const files = await listUserSheets()
-      setPickerFiles(files)
+      const file = await openSpreadsheetPicker(PICKER_API_KEY, PICKER_APP_ID)
+      if (!file || file.id === currentId) return
+      setSheetFile(file.id, file.name)
+      try { await load() } catch (e) { console.error(e) }
+      onClose()
     } catch (e) {
       setPickerError(String(e))
-    } finally {
-      setPickerLoading(false)
     }
-  }
-
-  async function handlePickFile(file: SheetFile) {
-    setPickerOpen(false)
-    if (file.id === currentId) return
-    setSheetFile(file.id, file.name)
-    try { await load() } catch (e) { console.error(e) }
   }
 
   function handleSave() {
@@ -78,39 +67,12 @@ export default function SettingsModal({ onClose }: Props) {
               <button
                 className={styles.changeBtn}
                 onClick={handleOpenPicker}
-                aria-expanded={pickerOpen}
               >
-                {pickerOpen ? 'Cancel' : 'Change'}
+                Change
               </button>
             </div>
 
-            {pickerOpen && (
-              <div className={styles.picker}>
-                {pickerLoading && (
-                  <div className={styles.pickerEmpty}>
-                    <div className={styles.miniSpinner} /> Loading files…
-                  </div>
-                )}
-                {pickerError && (
-                  <div className={styles.pickerError}>{pickerError}</div>
-                )}
-                {!pickerLoading && !pickerError && pickerFiles.length === 0 && (
-                  <div className={styles.pickerEmpty}>No Google Sheets found</div>
-                )}
-                {!pickerLoading && pickerFiles.map(file => (
-                  <button
-                    key={file.id}
-                    className={`${styles.pickerItem} ${file.id === currentId ? styles.pickerItemActive : ''}`}
-                    onClick={() => handlePickFile(file)}
-                  >
-                    <span className={styles.pickerName}>{file.name}</span>
-                    {file.id === currentId && (
-                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
+            {pickerError && <div className={styles.pickerError}>{pickerError}</div>}
           </div>
 
           {/* TMDB Key */}

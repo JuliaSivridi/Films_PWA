@@ -2,11 +2,12 @@
 // Token is persisted in localStorage so page refresh doesn't require GIS popup.
 // Types come from src/google.d.ts (GoogleTokenResponse, GoogleTokenClient, Window.google).
 
+// drive.file: access only to files this app created or the user picked via
+// the Google Picker — the app can no longer see the rest of Drive/Sheets.
 const SCOPES = [
   'email',
   'profile',
-  'https://www.googleapis.com/auth/spreadsheets',
-  'https://www.googleapis.com/auth/drive.metadata.readonly',
+  'https://www.googleapis.com/auth/drive.file',
 ].join(' ')
 
 const USER_KEY         = 'films_user'
