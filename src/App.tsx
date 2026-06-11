@@ -7,6 +7,8 @@ import LoginPage from './components/LoginPage'
 import Header from './components/Header'
 import MovieGrid from './components/MovieGrid'
 import StatsPage from './components/StatsPage'
+import HelpPage from './components/HelpPage'
+import FeedbackPage from './components/FeedbackPage'
 import styles from './App.module.css'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ||
@@ -14,7 +16,7 @@ const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ||
 
 type Phase = 'loading' | 'login' | 'ready'
 
-type View = 'list' | 'stats'
+type View = 'list' | 'stats' | 'help' | 'feedback'
 
 function MainContent() {
   const { load } = useMovies()
@@ -24,7 +26,7 @@ function MainContent() {
   useEffect(() => { load() }, [load])
 
   function handleLogoClick() {
-    if (view === 'stats') setView('list')
+    if (view !== 'list') setView('list')
     else setAlphaOpen(o => !o)
   }
 
@@ -33,10 +35,13 @@ function MainContent() {
       <Header
         onLogoClick={handleLogoClick}
         onStatsClick={() => setView('stats')}
+        onHelpClick={() => setView('help')}
+        onFeedbackClick={() => setView('feedback')}
       />
-      {view === 'list'
-        ? <MovieGrid alphaOpen={alphaOpen} onAlphaClose={() => setAlphaOpen(false)} />
-        : <StatsPage onBack={() => setView('list')} />
+      {view === 'list'     ? <MovieGrid alphaOpen={alphaOpen} onAlphaClose={() => setAlphaOpen(false)} />
+        : view === 'stats' ? <StatsPage onBack={() => setView('list')} />
+        : view === 'help'  ? <HelpPage onBack={() => setView('list')} />
+        : <FeedbackPage onBack={() => setView('list')} />
       }
     </>
   )

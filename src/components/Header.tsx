@@ -2,21 +2,22 @@ import { useEffect, useRef, useState } from 'react'
 import { useMovies } from '../context/MoviesContext'
 import { useAuth } from '../context/AuthContext'
 import SettingsModal from './SettingsModal'
-import HelpModal from './HelpModal'
-import FeedbackModal from './FeedbackModal'
 import FilterPanel from './FilterPanel'
 import styles from './Header.module.css'
 
-interface Props { onLogoClick: () => void; onStatsClick: () => void }
+interface Props {
+  onLogoClick: () => void
+  onStatsClick: () => void
+  onHelpClick: () => void
+  onFeedbackClick: () => void
+}
 
-export default function Header({ onLogoClick, onStatsClick }: Props) {
+export default function Header({ onLogoClick, onStatsClick, onHelpClick, onFeedbackClick }: Props) {
   const { query, setQuery, activeFilterCount } = useMovies()
   const { user, signOut } = useAuth()
   const [menuOpen,     setMenuOpen]     = useState(false)
   const [filterOpen,   setFilterOpen]   = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-  const [showHelp,     setShowHelp]     = useState(false)
-  const [showFeedback, setShowFeedback] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -101,7 +102,7 @@ export default function Header({ onLogoClick, onStatsClick }: Props) {
                 <button
                   className={styles.menuItem}
                   role="menuitem"
-                  onClick={() => { setMenuOpen(false); setShowHelp(true) }}
+                  onClick={() => { setMenuOpen(false); onHelpClick() }}
                 >
                   <span className="material-symbols-outlined">help</span>
                   Help
@@ -109,7 +110,7 @@ export default function Header({ onLogoClick, onStatsClick }: Props) {
                 <button
                   className={styles.menuItem}
                   role="menuitem"
-                  onClick={() => { setMenuOpen(false); setShowFeedback(true) }}
+                  onClick={() => { setMenuOpen(false); onFeedbackClick() }}
                 >
                   <span className="material-symbols-outlined">chat</span>
                   Feedback
@@ -134,8 +135,6 @@ export default function Header({ onLogoClick, onStatsClick }: Props) {
       </header>
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
-      {showHelp     && <HelpModal     onClose={() => setShowHelp(false)} />}
-      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
     </>
   )
 }
