@@ -159,3 +159,10 @@ After enrichment, import `films_enriched.csv` into Google Sheets (File → Impor
 **iOS / Safari:** Share button → *Add to Home Screen*
 
 **Desktop / Chrome:** install icon in the address bar
+
+---
+
+## Documentation
+
+- **Technical specification:** [`docs/tech-spec.md`](docs/tech-spec.md)
+
