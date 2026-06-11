@@ -145,10 +145,28 @@ export async function addMovie(movie: Movie): Promise<Movie> {
   return { ...movie, _row: match ? parseInt(match[1]) : undefined }
 }
 
+/** The in-memory _row can go stale (cache-first start, edits from another
+ *  device). Verify the row still holds this movie's id before writing;
+ *  if not, find the right row by id. */
+async function resolveRow(movie: Movie): Promise<number> {
+  if (movie._row) {
+    const res  = await api(`/values/${SHEET_NAME}!A${movie._row}`, 'GET')
+    const data = await res.json()
+    if (data.values?.[0]?.[0] === movie.id) return movie._row
+  }
+  const res  = await api(`/values/${SHEET_NAME}!A:A`, 'GET')
+  const data = await res.json()
+  const rows: string[][] = data.values ?? []
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0] === movie.id) return i + 1
+  }
+  throw new Error('Фильм не найден в таблице — обновите страницу')
+}
+
 export async function updateMovie(movie: Movie): Promise<void> {
-  if (!movie._row) throw new Error('Row number unknown')
+  const row = await resolveRow(movie)
   await api(
-    `/values/${SHEET_NAME}!A${movie._row}:P${movie._row}?valueInputOption=RAW`,
+    `/values/${SHEET_NAME}!A${row}:P${row}?valueInputOption=RAW`,
     'PUT',
     { values: [movieToRow(movie)] },
   )
