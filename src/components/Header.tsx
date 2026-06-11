@@ -10,9 +10,12 @@ interface Props {
   onStatsClick: () => void
   onHelpClick: () => void
   onFeedbackClick: () => void
+  /** When set, the header shows "back arrow + title + avatar" instead of logo/search/filters */
+  overlayTitle?: string
+  onOverlayBack?: () => void
 }
 
-export default function Header({ onLogoClick, onStatsClick, onHelpClick, onFeedbackClick }: Props) {
+export default function Header({ onLogoClick, onStatsClick, onHelpClick, onFeedbackClick, overlayTitle, onOverlayBack }: Props) {
   const { query, setQuery, activeFilterCount } = useMovies()
   const { user, signOut } = useAuth()
   const [menuOpen,     setMenuOpen]     = useState(false)
@@ -35,33 +38,44 @@ export default function Header({ onLogoClick, onStatsClick, onHelpClick, onFeedb
 
         {/* ── top row ─────────────────────────────────────────── */}
         <div className={styles.top}>
-          <button className={styles.logo} onClick={onLogoClick} title="Jump to letter">
-            <img src={`${import.meta.env.BASE_URL}icons/icon.svg`} width={26} height={26} alt="" />
-            <span>Films</span>
-          </button>
+          {overlayTitle ? (
+            <>
+              <button className={styles.overlayBack} onClick={onOverlayBack} title="Back to list">
+                <span className="material-symbols-outlined">arrow_back</span>
+              </button>
+              <span className={styles.overlayTitle}>{overlayTitle}</span>
+            </>
+          ) : (
+            <>
+              <button className={styles.logo} onClick={onLogoClick} title="Jump to letter">
+                <img src={`${import.meta.env.BASE_URL}icons/icon.svg`} width={26} height={26} alt="" />
+                <span>Films</span>
+              </button>
 
-          <div className={styles.search}>
-            <span className={`material-symbols-outlined ${styles.searchIcon}`}>search</span>
-            <input
-              type="search"
-              placeholder="Search by title, genre, keyword…"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-            />
-          </div>
+              <div className={styles.search}>
+                <span className={`material-symbols-outlined ${styles.searchIcon}`}>search</span>
+                <input
+                  type="search"
+                  placeholder="Search by title, genre, keyword…"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                />
+              </div>
 
-          {/* Filter toggle */}
-          <button
-            className={`${styles.filterBtn} ${filterOpen || activeFilterCount > 0 ? styles.filterBtnActive : ''}`}
-            onClick={() => setFilterOpen(o => !o)}
-            title="Filters"
-            aria-expanded={filterOpen}
-          >
-            <span className="material-symbols-outlined">tune</span>
-            {activeFilterCount > 0 && (
-              <span className={styles.filterBadge}>{activeFilterCount}</span>
-            )}
-          </button>
+              {/* Filter toggle */}
+              <button
+                className={`${styles.filterBtn} ${filterOpen || activeFilterCount > 0 ? styles.filterBtnActive : ''}`}
+                onClick={() => setFilterOpen(o => !o)}
+                title="Filters"
+                aria-expanded={filterOpen}
+              >
+                <span className="material-symbols-outlined">tune</span>
+                {activeFilterCount > 0 && (
+                  <span className={styles.filterBadge}>{activeFilterCount}</span>
+                )}
+              </button>
+            </>
+          )}
 
           {/* Avatar + dropdown */}
           <div className={styles.userWrap} ref={menuRef}>
@@ -130,7 +144,7 @@ export default function Header({ onLogoClick, onStatsClick, onHelpClick, onFeedb
         </div>
 
         {/* ── filter panel (collapsible) ──────────────────────── */}
-        {filterOpen && <FilterPanel />}
+        {!overlayTitle && filterOpen && <FilterPanel />}
 
       </header>
 

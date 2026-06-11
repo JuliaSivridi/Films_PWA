@@ -1,7 +1,5 @@
 import pageStyles from './StatsPage.module.css'
 
-interface Props { onBack: () => void }
-
 const SECTIONS: { title: string; items: [string, string][] }[] = [
   {
     title: 'Basics',
@@ -30,17 +28,10 @@ const SECTIONS: { title: string; items: [string, string][] }[] = [
   },
 ]
 
-export default function HelpPage({ onBack }: Props) {
+export default function HelpPage() {
   return (
     <div className={pageStyles.page}>
-      <div className={pageStyles.titleRow}>
-        <button className={pageStyles.backBtn} onClick={onBack} title="Back to list">
-          <span className="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h1 className={pageStyles.title}>Help</h1>
-      </div>
-
-      <div style={{ maxWidth: 560, margin: '0 auto', padding: '8px 16px 32px' }}>
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '16px 16px 32px' }}>
         {SECTIONS.map(s => (
           <section key={s.title} style={{ marginBottom: 22 }}>
             <p style={{

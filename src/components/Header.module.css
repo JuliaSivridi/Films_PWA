@@ -196,3 +196,30 @@
 @media (max-width: 520px) {
   .logo span { display: none; }
 }
+
+/* ── Overlay mode (Help / Feedback): back arrow + title + avatar ── */
+.overlayBack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 6px;
+  margin-left: -6px;
+  border-radius: var(--radius-sm);
+  transition: background .15s;
+}
+.overlayBack:hover { background: var(--surface); }
+
+.overlayTitle {
+  flex: 1;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-bottom: 2px;
+}

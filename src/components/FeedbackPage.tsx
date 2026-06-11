@@ -5,9 +5,7 @@ import modalStyles from './SettingsModal.module.css'
 
 const FEEDBACK_URL = import.meta.env.VITE_FEEDBACK_URL as string | undefined
 
-interface Props { onBack: () => void }
-
-export default function FeedbackPage({ onBack }: Props) {
+export default function FeedbackPage() {
   const { user } = useAuth()
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
@@ -36,14 +34,7 @@ export default function FeedbackPage({ onBack }: Props) {
 
   return (
     <div className={pageStyles.page}>
-      <div className={pageStyles.titleRow}>
-        <button className={pageStyles.backBtn} onClick={onBack} title="Back to list">
-          <span className="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h1 className={pageStyles.title}>Feedback</h1>
-      </div>
-
-      <div style={{ maxWidth: 560, margin: '0 auto', padding: '8px 16px 32px' }}>
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '16px 16px 32px' }}>
         {!FEEDBACK_URL ? (
           <p style={{ color: 'var(--text-muted, #9ca3af)' }}>Feedback is not configured yet.</p>
         ) : sent ? (
