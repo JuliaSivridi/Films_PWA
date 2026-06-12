@@ -9,11 +9,36 @@ const STATUS_OPTIONS: { key: MovieStatus | 'all'; label: string }[] = [
   { key: 'watched', label: STATUS_LABELS.watched },
 ]
 
-export default function FilterPanel() {
+interface Props {
+  open: boolean
+  onClose: () => void
+}
+
+/** Bottom-sheet filter panel (same pattern as Money/Tasks): backdrop +
+ *  slide-up sheet, "Clear all filters" pinned at the top, filters apply
+ *  instantly — no Apply button (family convention). */
+export default function FilterPanel({ open, onClose }: Props) {
   const { filters, setFilters, clearFilters, activeFilterCount } = useMovies()
 
   return (
-    <div className={styles.panel}>
+    <>
+      {open && <div className={styles.backdrop} onClick={onClose} />}
+
+      <div className={`${styles.sheet} ${open ? styles.sheetOpen : ''}`}>
+
+        <div className={styles.handleRow}>
+          <div className={styles.handle} />
+        </div>
+
+        {activeFilterCount > 0 && (
+          <div className={styles.clearWrap}>
+            <button className={styles.clearBtn} onClick={() => { clearFilters(); onClose() }}>
+              Clear all filters
+            </button>
+          </div>
+        )}
+
+        <div className={styles.panel}>
 
       {/* Status ──────────────────────────────────────────────── */}
       <div className={styles.filterRow}>
@@ -88,13 +113,8 @@ export default function FilterPanel() {
         />
       </div>
 
-      {/* Clear ───────────────────────────────────────────────── */}
-      {activeFilterCount > 0 && (
-        <button className={styles.clearBtn} onClick={clearFilters}>
-          Clear all filters
-        </button>
-      )}
-
-    </div>
+        </div>
+      </div>
+    </>
   )
 }
